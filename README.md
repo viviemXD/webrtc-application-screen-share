@@ -67,4 +67,6 @@ document.querySelector('#share').addEventListener('click', function(e) {
 - Start Chrome browser. 
 - Point browser to  e.g. http://\<your ip address\>:1337
 
+- You can test this on the same machine or across the network over two machines.
+
 
