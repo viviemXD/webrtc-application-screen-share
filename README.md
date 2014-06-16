@@ -1,18 +1,18 @@
-webrtc-application-screen-share
+webrtc-application-screen-share    
 ===============================
 
 This repo has three things.
 
 1. Chrome packaged app to share screen or applications (Presenter).
 2. Server application using node.js and web socket.
-3. Client web page that receives and displays the shared video stream (Attendee).
+3. Client web page that receives and displays the shared video stream.
 
 
 - Only works using Google Chrome, (Stable, Canary or Chromium).
 - No need for a Web Server, uses node.js which acts as both signaling and web server. 
 
 
-#### screen or application capture uses getUserMedia API 
+#### screen or application capture uses getUserMedia API
 
 ```javascript
 
@@ -21,7 +21,8 @@ function onAccessApproved(id) {
     console.log("Access rejected");
     return;
   }
-  navigator.webkitGetUserMedia({                                                                                                                                                                                                                    audio: false,
+  navigator.webkitGetUserMedia({                                                                                                                                                                                                              
+      audio: false,
       video: { mandatory: { chromeMediaSource: "desktop",
                             chromeMediaSourceId: id, 
                             maxWidth: screen.width,
@@ -41,7 +42,7 @@ document.querySelector('#share').addEventListener('click', function(e) {
 
 ####  Setup prerequesites
 
-- Install Node.js and websocket (sudo npm install websocket)
+- Install Node.js  and  websocket (sudo npm install websocket)
 
 ####  Server Steps (Tested on Linux and MacOS so far)
 
@@ -61,6 +62,7 @@ document.querySelector('#share').addEventListener('click', function(e) {
 
 ####  Client Attendee Steps
 
-- Start Chrome browser.
+- Start Chrome browser. 
 - Point browser to  e.g. http://\<your ip address\>:1337
+
 
