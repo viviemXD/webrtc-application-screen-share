@@ -133,6 +133,7 @@
 
     } else if (message.messageType === "iceCandidate" && mediaFlowing) {
       console.log('Received ICE candidate...');
+      var RTCIceCandidate = window.mozRTCIceCandidate || window.webkitRTCIceCandidate || window.RTCIceCandidate;
       var candidate = new RTCIceCandidate({sdpMLineIndex:message.candidate.sdpMLineIndex, sdpMid:message.candidate.sdpMid, candidate:message.candidate.candidate});
       pc.addIceCandidate(candidate);
 
