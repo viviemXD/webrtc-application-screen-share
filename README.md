@@ -7,10 +7,10 @@ This repo has three things.
 
 1. Chrome packaged app to share screen or applications (Presenter).
 2. Server application using node.js and web socket.
-3. Client web page that receives and displays the shared video stream.
+3. Client web page that receives and displays the shared video stream (Chrome or Firefox).
 
 
-- Only works using Google Chrome, (Stable, Canary or Chromium).
+- Presenter only works using Google Chrome, (Stable, Canary or Chromium).
 - No need for a Web Server, uses node.js which acts as both signaling and web server. 
 
 
@@ -53,7 +53,7 @@ document.querySelector('#share').addEventListener('click', function(e) {
 - Edit packaged_app/app.html (insert this machines ip address for WebSocket connection).
 - run 'sudo node app.js'
 
-####  Share Presenter steps
+####  Client Presenter steps (Chrome browser or Chromebook)
 
 - Install packaged app in chrome
 - i.e. open 'chrome://extensions'
@@ -62,9 +62,9 @@ document.querySelector('#share').addEventListener('click', function(e) {
 - Launch app by clicking 'launch' link in chrome://extensions
 -  Or use Chrome App Launcher to launch it.
 
-####  Client Attendee Steps
+####  Client Attendee Steps (Chrome or Firefox)
 
-- Start Chrome browser. 
+- Start Chrome browser.
 - Point browser to  e.g. http://\<your ip address\>:1337
 
 - You can test this on the same machine or across the network over two machines.
