@@ -1,6 +1,8 @@
 webrtc-application-screen-share    
 ===============================
 
+Very simlple Chrome demo that captures either the users screen or selected application. 1 presenter who shares either their screen or applications and 1 attendee who views the share on a web page.
+
 This repo has three things.
 
 1. Chrome packaged app to share screen or applications (Presenter).
@@ -12,7 +14,7 @@ This repo has three things.
 - No need for a Web Server, uses node.js which acts as both signaling and web server. 
 
 
-#### screen or application capture uses getUserMedia API
+#### screen or application capture uses getUserMedia API and chrome.desktopCapture
 
 ```javascript
 
@@ -51,10 +53,10 @@ document.querySelector('#share').addEventListener('click', function(e) {
 - Edit packaged_app/app.html (insert this machines ip address for WebSocket connection).
 - run 'sudo node app.js'
 
-####  Share Presenter \ Host steps
+####  Share Presenter steps
 
 - Install packaged app in chrome
-- Open 'chrome://extensions'
+- i.e. open 'chrome://extensions'
 - Click button 'Load unpacked extension'
 - Navigate to the packaged_app folder of this repo
 - Launch app by clicking 'launch' link in chrome://extensions
@@ -64,5 +66,7 @@ document.querySelector('#share').addEventListener('click', function(e) {
 
 - Start Chrome browser. 
 - Point browser to  e.g. http://\<your ip address\>:1337
+
+- You can test this on the same machine or across the network over two machines.
 
 
