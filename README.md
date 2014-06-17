@@ -13,6 +13,7 @@ This repo has three things.
 - Presenter only works using Google Chrome, (Stable, Canary or Chromium).
 - No need for a Web Server, uses node.js which acts as both signaling and web server. 
 
+![Architecture diagram](https://github.com/emannion/webrtc-application-screen-share/blob/master/arch.png "Arch diagram")
 
 #### screen or application capture uses getUserMedia API and chrome.desktopCapture
 
