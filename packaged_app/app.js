@@ -5,7 +5,6 @@ var video = null;
 var localStream = null;
 var mediaFlowing = false;
 var pc = null; 
-var socket = new WebSocket('ws://10.148.81.29:1337');
 var pending_request_id = null;
 var mediaConstraints = {'mandatory': {
                         'OfferToReceiveAudio':false, 
