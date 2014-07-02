@@ -1,6 +1,6 @@
 
 // Replace with your server domain or ip address
-var socket = new WebSocket('ws://10.148.81.29:1337');
+var socket = new WebSocket('ws://10.148.81.28:1337');
 var video = null;
 var localStream = null;
 var mediaFlowing = false;
