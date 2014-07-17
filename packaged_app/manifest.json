@@ -13,6 +13,6 @@
     }
   },
   "permissions": [
-    "desktopCapture"
+    "videoCapture", "audioCapture", "desktopCapture"
   ]
 }

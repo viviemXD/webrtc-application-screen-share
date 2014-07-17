@@ -63,9 +63,9 @@ document.querySelector('#share').addEventListener('click', function(e) {
 - Launch app by clicking 'launch' link in chrome://extensions
 -  Or use Chrome App Launcher to launch it.
 
-####  Client Attendee Steps (Chrome or Firefox)
+####  Client Attendee Steps 
 
-- Start Chrome browser.
+- Start Chrome browser. Firefox can not add two video streams to same peerConnection yet so only use Chrome for now.
 - Point browser to  e.g. http://\<your ip address\>:1337
 
 - You can test this on the same machine or across the network over two machines.

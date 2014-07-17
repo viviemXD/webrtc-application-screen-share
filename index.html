@@ -7,15 +7,19 @@
   <style>
     h1, h2, h3 {
       background: rgb(238, 238, 238);
-      border-bottom-width: 1px;
+      border-bottom-width: 0px;
       display: block;
       margin-top: 0;
-      padding: .2em;
       text-align: center;
     }
-    .video-win {
+    .video-win1 {
       width: 768px; 
       height: 576px; 
+      border: 1px solid black;
+    }
+    .video-win2 {
+      width: 384px; 
+      height: 288px; 
       border: 1px solid black;
     }
     .video-section {
@@ -35,11 +39,12 @@
 </head>
 <body>
 
-  <h1>WebRTC, Screen \ Application Share Demo</h1>
-  <h2>Use WebRTC compatable browser, this is the attendee console, receive only</h2>
+  <h1>WebRTC, P2P Screen \ Application Share Demo</h1>
+  <h2>Use recent Chrome browser, this is the attendee console, receive only</h2>
   <div class="video-section">
   <h3> Remote Share </h3>
-    <video class="video-win" id="remotevideo" autoplay controls></video>
+    <video class="video-win1" id="video1" autoplay controls></video>
+    <video class="video-win2" id="video2" autoplay controls></video>
     <div class="buttons-section">
       <button type="button" onclick="pause();">Pause</button>
       <button type="button" onclick="play();">Play</button>
@@ -52,21 +57,25 @@
   // Replace with your server domain or ip address 
   var socket = new WebSocket('ws://10.148.81.29:1337/'); 
 
-  var remotevid = document.getElementById('remotevideo');
+  var video1 = document.getElementById('video1');
+  var video1Active = false;
+  var video2 = document.getElementById('video2');
+  var video2Active = false;
   var localStream = null;
   var pc = null;
   var mediaFlowing = false;
   var mediaConstraints = {'mandatory': {
-                          'OfferToReceiveAudio':false, 
+                          'OfferToReceiveAudio':true, 
                           'OfferToReceiveVideo':true}};
 
-
   function pause() {
-    remotevid.pause();
+    video1.pause();
+    video2.pause();
   }
 
   function play() {
-    remotevid.play();
+    video1.play();
+    video2.play();
   }
 
   // stop the connection on button click 
@@ -84,8 +93,11 @@
       pc.close();
       pc = null;
     }
-    remotevid.src = null; 
+    video1.src = null; 
+    video2.src = null; 
     mediaFlowing = false;        
+    video1Active = false;
+    video2Active = false;
   }
 
   // send SDP over web socket 
@@ -117,7 +129,9 @@
     if(message.messageType === "offer") {
       console.log("Received offer...")
       if (!mediaFlowing) {
-        createPeerConnection();
+        if (!pc) {
+          createPeerConnection();
+        }
         mediaFlowing = true;
       }
       console.log('Creating remote session description...' );
@@ -154,13 +168,13 @@
     }
 
     // send any ice candidates to the other peer
-    pc.onicecandidate = function (evt) {
+    pc.onicecandidate = function (event) {
       if (event.candidate) {
         console.log('Sending ICE candidate...');
-        console.log(evt.candidate);
+        console.log(event.candidate);
         socket.send(JSON.stringify({
                      "messageType": "iceCandidate",
-                     "candidate": evt.candidate 
+                     "candidate": event.candidate 
                     }));   
       } else {
         console.log("End of candidates");
@@ -172,14 +186,26 @@
 
     function onRemoteStreamAdded(event) {
       console.log("Added remote stream");
-      remotevid.src = window.URL.createObjectURL(event.stream);
-      remotevid.play();
+
+      if (!video2Active) {
+        video2.src = window.URL.createObjectURL(event.stream);
+        video2.play();
+        video2Active = true;
+        return;
+      }
+
+      if (!video1Active) {
+        video1.src = window.URL.createObjectURL(event.stream);
+        video1.play();
+        video1Active = true;
+      }
       pc.createAnswer(setLocalDescAndSendMessage, onCreateAnswerFailed, mediaConstraints);
     }
 
     function onRemoteStreamRemoved(event) {
       console.log("Remove remote stream");
-      remotevid.src = "";
+      video1.src = "";
+      video2.src = "";
     }
   }
   </script>

@@ -1,19 +1,22 @@
 
 // Replace with your server domain or ip address
-var socket = new WebSocket('ws://10.148.81.28:1337');
-var video = null;
+var socket = new WebSocket('ws://10.148.81.29:1337');
+var video1 = null;
+var video2 = null;
 var localStream = null;
+var localStream1 = null;
 var mediaFlowing = false;
+var mediaFlowing1 = false;
 var pc = null; 
 var pending_request_id = null;
+
 var mediaConstraints = {'mandatory': {
                         'OfferToReceiveAudio':false, 
                         'OfferToReceiveVideo':false}};
 
-
-function gotStream(stream) {
-  video = document.querySelector("video");
-  video.src = URL.createObjectURL(stream);
+function gotStream1(stream) {
+  video1 = document.getElementById("video1");
+  video1.src = URL.createObjectURL(stream);
   localStream = stream;
 
   if ("WebSocket" in window) {
@@ -27,6 +30,19 @@ function gotStream(stream) {
 
   stream.onended = function() { console.log("Stream ended"); };
 }
+
+function gotStream2(stream) {
+  video2 = document.getElementById("video2");
+  video2.src = URL.createObjectURL(stream);
+  localStream1 = stream;
+  connect();
+  } else {
+    console.log("No web socket connection");
+  }
+
+  stream.onended = function() { console.log("Stream ended"); };
+}
+
 
 function getUserMediaError() {
   console.log("getUserMedia() failed");
@@ -45,7 +61,7 @@ function onAccessApproved(id) {
                             maxHeight: screen.height,
                             minFrameRate: 1,
                             maxFrameRate: 5 }}
-  }, gotStream, getUserMediaError);
+  }, gotStream1, getUserMediaError);
 }
 
 document.querySelector('#share').addEventListener('click', function(e) {
@@ -77,10 +93,32 @@ function onCreateOfferFailed() {
 
 function share() {
   if (!mediaFlowing && localStream) {
-    createPeerConnection();
+    if (!pc) {
+      createPeerConnection();
+    }
     console.log('Adding local stream...');
     pc.addStream(localStream);
     mediaFlowing = true;
+
+    // grab camera and mic also
+    navigator.webkitGetUserMedia({
+      audio: true,
+      video: true
+    }, gotStream2, getUserMediaError);
+
+  } else {
+    console.log("Local stream not running.");
+  }
+}
+
+function connect() {
+  if (!mediaFlowing1 && localStream1) {
+    if (!pc) {
+      createPeerConnection();
+    }
+    console.log('Adding local stream...');
+    pc.addStream(localStream1);
+    mediaFlowing1 = true;
     pc.createOffer(setLocalDescAndSendMessage, onCreateOfferFailed, mediaConstraints);
   } else {
     console.log("Local stream not running.");
@@ -101,8 +139,10 @@ function stop() {
     pc.close();
     pc = null;
   }
-  video.src = null;
+  video1.src = null;
+  video2.src = null;
   mediaFlowing = false;
+  mediaFlowing1 = false;
 }
 
 function onCreateOfferFailed() {
