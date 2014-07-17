@@ -58,6 +58,7 @@ document.querySelector('#share').addEventListener('click', function(e) {
 
 - Install packaged app in chrome
 - i.e. open 'chrome://extensions'
+- click 'Developer Mode' check box.
 - Click button 'Load unpacked extension'
 - Navigate to the packaged_app folder of this repo
 - Launch app by clicking 'launch' link in chrome://extensions
