@@ -36,10 +36,6 @@ function gotStream2(stream) {
   video2.src = URL.createObjectURL(stream);
   localStream1 = stream;
   connect();
-  } else {
-    console.log("No web socket connection");
-  }
-
   stream.onended = function() { console.log("Stream ended"); };
 }
 
