@@ -7,7 +7,7 @@ This repo has three things.
 
 1. Chrome packaged app to share screen or applications (Presenter).
 2. Server application using node.js and web socket.
-3. Client web page that receives and displays the shared video stream (Chrome or Firefox).
+3. Client web page that receives and displays the shared video stream (Chrome).
 
 
 - Presenter only works using Google Chrome, (Stable, Canary or Chromium).
