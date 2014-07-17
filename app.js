@@ -1,3 +1,5 @@
+// This is the node.js server application
+
 var WebSocketServer = require('websocket').server;
 var http = require('http');
 var fs = require('fs');
