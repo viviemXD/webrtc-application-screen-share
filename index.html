@@ -54,8 +54,10 @@
 
   <script>
 
-  // Replace with your server domain or ip address 
-  var socket = new WebSocket('ws://10.148.81.29:1337/'); 
+  // detect server from URL
+  var hostArray = window.location.host.split(':');
+  var serverLoc = 'ws://' + hostArray[0] + ':1337/'
+  var socket = new WebSocket(serverLoc); 
 
   var video1 = document.getElementById('video1');
   var video1Active = false;
@@ -77,6 +79,9 @@
     video1.play();
     video2.play();
   }
+
+var patharray = window.location.host.split(':');
+console.log(patharray[0]);
 
   // stop the connection on button click 
   function disconnect() {
