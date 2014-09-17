@@ -1,6 +1,6 @@
 
 // Replace with your server domain or ip address
-var socket = new WebSocket('ws://10.148.81.29:1337');
+var socket = new WebSocket('ws://10.148.80.54:1337');
 var video1 = null;
 var video2 = null;
 var localStream = null;
@@ -135,8 +135,8 @@ function stop() {
     pc.close();
     pc = null;
   }
-  video1.src = null;
-  video2.src = null;
+  video1.src = "";
+  video2.src = "";
   mediaFlowing = false;
   mediaFlowing1 = false;
 }
