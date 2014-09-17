@@ -1,21 +1,31 @@
-<!--This is the Share attendee page used to view the share and video from presentor console-->
+<!-- This is the Share attendee page used to view the share and video being sent from presentor console -->
 <!DOCTYPE html>
 <html>
 <head>
   <title>Chrome Screen \ Application Capture Demo</title>  
 
   <style>
+    .mainTitleH2 {
+      margin: 0;
+      padding: 0;
+    }
+    .remoteIDH3 {
+      margin: 1;
+      padding: 1;
+      margin-top: 1px;
+    }
     h1, h2, h3 {
       background: rgb(238, 238, 238);
       border-bottom-width: 0px;
       display: block;
-      margin-top: 0;
+      margin-top: -7px;
       text-align: center;
     }
     .video-win1 {
       width: 768px; 
       height: 576px; 
       border: 1px solid black;
+      margin-top: -7px;
     }
     .video-win2 {
       width: 384px; 
@@ -79,10 +89,9 @@
 </head>
 <body>
 
-  <h1>WebRTC, P2P Screen \ Application Share Demo</h1>
-  <h2>Use recent Chrome browser, this is the attendee console, receive only</h2>
+  <h2 id="mainTitleH2">WebRTC Share Demo, attendee console</h2>
   <div class="video-section">
-  <h3> Remote Share </h3>
+  <h3 id="remoteIDH3"> Remote Share </h3>
     <video class="video-win1" id="video1" autoplay controls></video>
     <video class="video-win2" id="video2" autoplay controls></video>
     <div class="buttons-section">
