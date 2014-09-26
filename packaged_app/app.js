@@ -7,8 +7,8 @@ var localStream = null;
 var localStream1 = null;
 var mediaFlowing = false;
 var mediaFlowing1 = false;
-var pc = null; 
 var pending_request_id = null;
+var pconns = {};
 
 var mediaConstraints = {'mandatory': {
                         'OfferToReceiveAudio':false, 
@@ -38,7 +38,6 @@ function gotStream2(stream) {
   connect();
   stream.onended = function() { console.log("Stream ended"); };
 }
-
 
 function getUserMediaError() {
   console.log("getUserMedia() failed");
@@ -72,12 +71,25 @@ document.querySelector('#cancel').addEventListener('click', function(e) {
   disconnect();
 });
 
-// send SDP over web socket 
-function setLocalDescAndSendMessage(sessionDescription) {
-  pc.setLocalDescription(sessionDescription);
+// Two peerconnections are used to have Firefox compatability, this is
+// because Chrome can do share and video using one PeerConnection but FF needs two.
+function setLocalDescAndSendMessagePC0(sessionDescription) {
+  pconns[0].setLocalDescription(sessionDescription);
   console.log("Sending: SDP");
   console.log(sessionDescription);
   socket.send(JSON.stringify({
+                    "pc": 0,
+                    "messageType": "offer",
+                    "peerDescription": sessionDescription
+              }));
+}
+
+function setLocalDescAndSendMessagePC1(sessionDescription) {
+  pconns[1].setLocalDescription(sessionDescription);
+  console.log("Sending: SDP");
+  console.log(sessionDescription);
+  socket.send(JSON.stringify({
+                    "pc": 1,
                     "messageType": "offer",
                     "peerDescription": sessionDescription
               }));
@@ -89,12 +101,14 @@ function onCreateOfferFailed() {
 
 function share() {
   if (!mediaFlowing && localStream) {
-    if (!pc) {
-      createPeerConnection();
+    if (!pconns[0]) {
+      createPeerConnection(0);
     }
     console.log('Adding local stream...');
-    pc.addStream(localStream);
+    pconns[0].addStream(localStream);
     mediaFlowing = true;
+
+    pconns[0].createOffer(setLocalDescAndSendMessagePC0, onCreateOfferFailed, mediaConstraints);
 
     // grab camera and mic also
     navigator.webkitGetUserMedia({
@@ -109,13 +123,13 @@ function share() {
 
 function connect() {
   if (!mediaFlowing1 && localStream1) {
-    if (!pc) {
-      createPeerConnection();
+    if (!pconns[1]) {
+      createPeerConnection(1);
     }
     console.log('Adding local stream...');
-    pc.addStream(localStream1);
+    pconns[1].addStream(localStream1);
     mediaFlowing1 = true;
-    pc.createOffer(setLocalDescAndSendMessage, onCreateOfferFailed, mediaConstraints);
+    pconns[1].createOffer(setLocalDescAndSendMessagePC1, onCreateOfferFailed, mediaConstraints);
   } else {
     console.log("Local stream not running.");
   }
@@ -125,15 +139,18 @@ function connect() {
 function disconnect() {
   console.log("disconnect()");    
   socket.send(JSON.stringify({
+                "pc": 0,
                 "messageType": "bye"
              }));
   stop();
 }
 
 function stop() {
-  if (pc != null) {
-    pc.close();
-    pc = null;
+  if (pconns[0] != null) {
+    pconns[0].close();
+    pconns[0] = null;
+    pconns[1].close();
+    pconns[1] = null;
   }
   video1.src = "";
   video2.src = "";
@@ -154,6 +171,7 @@ socket.addEventListener("message", onWebSocketMessage, false);
 // process messages from web socket
 function onWebSocketMessage(evt) {
   var message = JSON.parse(evt.data);
+  var pcID = message.pc;
 
   if (message.messageType === "answer" && mediaFlowing) {
     var remoteDescription = message.peerDescription;
@@ -161,13 +179,13 @@ function onWebSocketMessage(evt) {
     console.log('Received answer...');
     console.log('Setting remote session description...' );
     var RTCSessionDescription = window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.RTCSessionDescription;
-    pc.setRemoteDescription(new RTCSessionDescription(remoteDescription));
+    pconns[pcID].setRemoteDescription(new RTCSessionDescription(remoteDescription));
 
   } else if (message.messageType === "iceCandidate" && mediaFlowing) {
     console.log('Received ICE candidate...');
     var candidate = new RTCIceCandidate({sdpMLineIndex:message.candidate.sdpMLineIndex, sdpMid:message.candidate.sdpMid, candidate:message.candidate.candidate});
     console.log(candidate);
-    pc.addIceCandidate(candidate);
+    pconns[pcID].addIceCandidate(candidate);
 
   } else if (message.messageType === "bye" && mediaFlowing) {
     console.log("Received bye");
@@ -175,23 +193,24 @@ function onWebSocketMessage(evt) {
   }
 }
 
-function createPeerConnection() {
+function createPeerConnection(pcID) {
   console.log("Creating peer connection");
   RTCPeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
   var pc_config = {"iceServers":[]};
   try {
-    pc = new RTCPeerConnection(pc_config);
+    pconns[pcID] = new RTCPeerConnection(pc_config);
   } catch (e) {
     console.log("Failed to create PeerConnection, exception: " + e.message);
   }
 
   // send any ice candidates to the other peer
-  pc.onicecandidate = function (evt) {
+  pconns[pcID].onicecandidate = function (evt) {
     if (evt.candidate) {
       console.log('Sending ICE candidate...');
       console.log(evt.candidate);
 
       socket.send(JSON.stringify({
+                    "pc": pcID,
                     "messageType": "iceCandidate",
                     "candidate": evt.candidate
                   }));   
@@ -200,10 +219,10 @@ function createPeerConnection() {
     }
   };
   console.log('Adding local stream...');
-  pc.addStream(localStream);
+  pconns[pcID].addStream(localStream);
 
-  pc.addEventListener("addstream", onRemoteStreamAdded, false);
-  pc.addEventListener("removestream", onRemoteStreamRemoved, false)
+  pconns[pcID].addEventListener("addstream", onRemoteStreamAdded, false);
+  pconns[pcID].addEventListener("removestream", onRemoteStreamRemoved, false)
 
   function onRemoteStreamAdded(event) {
     console.log("Added remote stream");
