@@ -44,12 +44,6 @@
       margin-left: auto;
       margin-right: auto;
     }
-    .buttons-section {
-      width: 770px;
-      position: relative;
-      left: 50%;
-      margin-left: -270px;
-    }
     .myButton {
       -moz-box-shadow: inset 0px 1px 0px 0px #ffffff;
       -webkit-box-shadow: inset 0px 1px 0px 0px #ffffff;
@@ -90,26 +84,51 @@
       position: relative;
       top: 1px;
     }
+    .table_header {
+      text-align: center; 
+      vertical-align: middle;
+      cursor: pointer;
+      color: #666666;
+      font-family: arial;
+      font-size: 13px;
+      font-weight: bold;
+      text-decoration: none;
+      text-shadow: 0px 1px 0px #ffffff;
+    }
+    .table_buttons {
+      text-align: center;
+    }
   </style>
 
 </head>
 <body>
 
-  <h2 id="mainTitleH2">WebRTC Share, attendee console, Chrome or Firefox</h2>
+  <h2 id="mainTitleH2">WebRTC Share, attendee console</h2>
   <div class="share-video-section">
     <h3 id="remoteIDH3"> Remote Share </h3>
     <video class="video-win1" id="shareVideo" autoplay controls></video>
     <div class="video-section">
-      <video class="video-win2" id="localVideo" autoplay controls></video>
-      <video class="video-win2" id="remoteVideo" autoplay controls></video>
-    </div>
-    <div class="buttons-section">
-      <button class="myButton" type="button" onclick="startMedia();">Start Media</button>
-      <button class="myButton" type="button" onclick="stopMedia();">Stop Media</button>
-      <button class="myButton" type="button" onclick="pause();">Pause</button>
-      <button class="myButton" type="button" onclick="play();">Play</button>
-      <button class="myButton" type="button" onclick="disconnect();">Disconnect</button>
-    </div>
+      <table>
+        <tr class="table_header">
+          <td>Local Video</td>
+          <td>Remote Video</td>
+        </tr>
+        <tr>
+          <td><video class="video-win2" id="localVideo" autoplay controls></video></td>
+          <td><video class="video-win2" id="remoteVideo" autoplay controls></video></td>
+        </tr>
+        <tr class="table_buttons">
+          <td>
+            <button class="myButton" type="button" onclick="startMedia();">Start Media</button>
+            <button class="myButton" type="button" onclick="stopMedia();">Stop Media</button>
+          </td>
+          <td>
+            <button class="myButton" type="button" onclick="pause();">Pause</button>
+            <button class="myButton" type="button" onclick="play();">Play</button>
+            <button class="myButton" type="button" onclick="disconnect();">Disconnect</button>
+          </td>
+        </tr>
+      </table> 
   </div>
 
   <script>
