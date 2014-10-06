@@ -51,44 +51,44 @@
       margin-left: -270px;
     }
     .myButton {
-      -moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
-      -webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
-      box-shadow:inset 0px 1px 0px 0px #ffffff;
-      background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #ffffff), color-stop(1, #f6f6f6));
-      background:-moz-linear-gradient(top, #ffffff 5%, #f6f6f6 100%);
-      background:-webkit-linear-gradient(top, #ffffff 5%, #f6f6f6 100%);
-      background:-o-linear-gradient(top, #ffffff 5%, #f6f6f6 100%);
-      background:-ms-linear-gradient(top, #ffffff 5%, #f6f6f6 100%);
-      background:linear-gradient(to bottom, #ffffff 5%, #f6f6f6 100%);
-      filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#f6f6f6',GradientType=0);
-      background-color:#ffffff;
-      -moz-border-radius:6px;
-      -webkit-border-radius:6px;
-      border-radius:6px;
-      border:1px solid #dcdcdc;
-      display:inline-block;
-      cursor:pointer;
-      color:#666666;
-      font-family:arial;
-      font-size:13px;
-      font-weight:bold;
-      padding:6px 24px;
-      text-decoration:none;
-      text-shadow:0px 1px 0px #ffffff;
+      -moz-box-shadow: inset 0px 1px 0px 0px #ffffff;
+      -webkit-box-shadow: inset 0px 1px 0px 0px #ffffff;
+      box-shadow: inset 0px 1px 0px 0px #ffffff;
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #ffffff), color-stop(1, #f6f6f6));
+      background: -moz-linear-gradient(top, #ffffff 5%, #f6f6f6 100%);
+      background: -webkit-linear-gradient(top, #ffffff 5%, #f6f6f6 100%);
+      background: -o-linear-gradient(top, #ffffff 5%, #f6f6f6 100%);
+      background: -ms-linear-gradient(top, #ffffff 5%, #f6f6f6 100%);
+      background: linear-gradient(to bottom, #ffffff 5%, #f6f6f6 100%);
+      filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#f6f6f6',GradientType=0);
+      background-color: #ffffff;
+      -moz-border-radius: 6px;
+      -webkit-border-radius: 6px;
+      border-radius: 6px;
+      border: 1px solid #dcdcdc;
+      display: inline-block;
+      cursor: pointer;
+      color: #666666;
+      font-family: arial;
+      font-size: 13px;
+      font-weight: bold;
+      padding: 6px 24px;
+      text-decoration: none;
+      text-shadow: 0px 1px 0px #ffffff;
     }
     .myButton:hover {
-      background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #f6f6f6), color-stop(1, #ffffff));
-      background:-moz-linear-gradient(top, #f6f6f6 5%, #ffffff 100%);
-      background:-webkit-linear-gradient(top, #f6f6f6 5%, #ffffff 100%);
-      background:-o-linear-gradient(top, #f6f6f6 5%, #ffffff 100%);
-      background:-ms-linear-gradient(top, #f6f6f6 5%, #ffffff 100%);
-      background:linear-gradient(to bottom, #f6f6f6 5%, #ffffff 100%);
-      filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f6f6f6', endColorstr='#ffffff',GradientType=0);
-      background-color:#f6f6f6;
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #f6f6f6), color-stop(1, #ffffff));
+      background: -moz-linear-gradient(top, #f6f6f6 5%, #ffffff 100%);
+      background: -webkit-linear-gradient(top, #f6f6f6 5%, #ffffff 100%);
+      background: -o-linear-gradient(top, #f6f6f6 5%, #ffffff 100%);
+      background: -ms-linear-gradient(top, #f6f6f6 5%, #ffffff 100%);
+      background: linear-gradient(to bottom, #f6f6f6 5%, #ffffff 100%);
+      filter:progid: DXImageTransform.Microsoft.gradient(startColorstr='#f6f6f6', endColorstr='#ffffff',GradientType=0);
+      background-color: #f6f6f6;
     }
-    .myButton:active {
-      position:relative;
-      top:1px;
+    .myButton: active {
+      position: relative;
+      top: 1px;
     }
   </style>
 
@@ -97,11 +97,11 @@
 
   <h2 id="mainTitleH2">WebRTC Share, attendee console, Chrome or Firefox</h2>
   <div class="share-video-section">
-  <h3 id="remoteIDH3"> Remote Share </h3>
-    <video class="video-win1" id="video1" autoplay controls></video>
+    <h3 id="remoteIDH3"> Remote Share </h3>
+    <video class="video-win1" id="shareVideo" autoplay controls></video>
     <div class="video-section">
-      <video class="video-win2" id="video2" autoplay controls></video>
-      <video class="video-win2" id="video3" autoplay controls></video>
+      <video class="video-win2" id="localVideo" autoplay controls></video>
+      <video class="video-win2" id="remoteVideo" autoplay controls></video>
     </div>
     <div class="buttons-section">
       <button class="myButton" type="button" onclick="startMedia();">Start Media</button>
@@ -119,11 +119,11 @@
   var serverLoc = 'ws://' + hostArray[0] + ':1337/'
   var socket = new WebSocket(serverLoc); 
 
-  var video1 = document.getElementById('video1');
-  var video1Active = false;
-  var video2 = document.getElementById('video2');
-  var video2Active = false;
-  var localvid = document.getElementById('video3');
+  var shareVideo = document.getElementById('shareVideo');
+  var shareVideoActive = false;
+  var remoteVideo = document.getElementById('remoteVideo');
+  var remoteVideoActive = false;
+  var localvid = document.getElementById('localVideo');
   var localStream = null;
   var mediaFlowing = false;
   var pconns = {};
@@ -183,13 +183,13 @@
   }
 
   function pause() {
-    video1.pause();
-    video2.pause();
+    shareVideo.pause();
+    remoteVideo.pause();
   }
 
   function play() {
-    video1.play();
-    video2.play();
+    shareVideo.play();
+    remoteVideo.play();
   }
 
   // stop the connection on button click 
@@ -212,12 +212,12 @@
       pconns[1].close();
       pconns[1] = null;
     }
-    video1.src = ""; 
-    video2.src = ""; 
+    shareVideo.src = ""; 
+    remoteVideo.src = ""; 
     localvid.src = "";
     mediaFlowing = false;        
-    video1Active = false;
-    video2Active = false;
+    shareVideoActive = false;
+    remoteVideoActive = false;
   }
 
   // Two peerconnections are used to have Firefox compatability, this is
@@ -338,17 +338,17 @@
     function onRemoteStreamAdded(event) {
       console.log("Added remote stream");
 
-      if (!video1Active) {
-        video1.src = window.URL.createObjectURL(event.stream);
-        video1.play();
-        video1Active = true;
+      if (!shareVideoActive) {
+        shareVideo.src = window.URL.createObjectURL(event.stream);
+        shareVideo.play();
+        shareVideoActive = true;
         return;
       }
 
-      if (!video2Active) {
-        video2.src = window.URL.createObjectURL(event.stream);
-        video2.play();
-        video2Active = true;
+      if (!remoteVideoActive) {
+        remoteVideo.src = window.URL.createObjectURL(event.stream);
+        remoteVideo.play();
+        remoteVideoActive= true;
         if (localStream) 
          playLocalvideo(); 
       }
@@ -360,8 +360,8 @@
 
     function onRemoteStreamRemoved(event) {
       console.log("Remove remote stream");
-      video1.src = "";
-      video2.src = "";
+      shareVideo.src = "";
+      remoteVideo.src = "";
     }
   }
   </script>
