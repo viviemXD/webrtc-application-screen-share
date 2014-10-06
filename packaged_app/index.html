@@ -53,31 +53,57 @@
     -webkit-align-items: center;
     -webkit-flex-direction: column;
   }
-  video {
+  .video_large {
     width: 640px;
     height: 480px;
     border: 1px solid #e2e2e2;
     box-shadow: 0 1px 1px rgba(0,0,0,0.2);
   }
+  .video_small {
+    width: 316px;
+    height: 280px;
+    border: 1px solid #e2e2e2;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+  }
   div {
     border-color:#000000;
-    #background: rgb(204,229,255); 
     background: white; 
     border-size: 1px;
     border-style: solid;
     border-width: 1px;
-    float: right; /* this will move it to the right */
     margin-right: 1px; /* this ap
+  }
+  .outer-div {
+     width: 1000px;
+     margin: 0 auto;
+  }
+  .share-div, .video-div {
+    border: 1px solid white;
+    min-height: 450px;
+    color: white;
+  }
+  .share-div {
+     width: 640px;
+     background-color: #111;
+  }
+  .video-div {
+     width: 340px;
+     background-color: #777;
   }
 }
 </style>
 </head>
 <body>
-  <div>
-  <video id="video1" autoplay></video>
-  <video id="video2" autoplay></video>
+  <div id="outer-div">
+    <div class="share-div">
+      <video id="video1" class="video_large" autoplay></video>
+    </div>
+    <div class="video-div">
+      <video id="video2" class="video_small" autoplay></video>
+      <video id="video3" class="video_small" autoplay></video>
+    </div>
+  </div>
   <p><button class="myButton" id="share">Share</button><button class="myButton" id="cancel">Cancel</button></p>
   <script src="app.js"></script>
-  </div>
 </body>
 </html>

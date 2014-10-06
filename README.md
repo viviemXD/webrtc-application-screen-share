@@ -1,7 +1,7 @@
 webrtc-application-screen-share    
 ===============================
 
-Very simple demo that captures either the users screen or a selected application and shares the video stream over a WebRTC PeerConnection. Demo consists of a presenter who shares their screen or applications and an attendee who views the share on a web page.  The presentor also sends audio and video to attendee. The attendee can be either a Chrome or Firefox browser. The presenter must be using Chrome.
+Very simple demo that captures either the users screen or a selected application and shares the video stream over a WebRTC PeerConnection. Demo consists of a presenter who shares their screen or applications and an attendee who views the share on a web page.  Audio and video is also transmitted to and from both peers. The attendee can be either a Chrome or Firefox browser. The presenter must be using Chrome.
 
 This repo has three things.
 

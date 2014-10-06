@@ -28,12 +28,18 @@
       margin-top: -7px;
     }
     .video-win2 {
-      width: 384px; 
+      width: 381px; 
       height: 288px; 
       border: 1px solid black;
     }
-    .video-section {
+    .share-video-section {
       width: 770px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .video-section {
+      width: 860px;
       display: block;
       margin-left: auto;
       margin-right: auto;
@@ -42,7 +48,7 @@
       width: 770px;
       position: relative;
       left: 50%;
-      margin-left: -80px;
+      margin-left: -270px;
     }
     .myButton {
       -moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
@@ -89,12 +95,17 @@
 </head>
 <body>
 
-  <h2 id="mainTitleH2">WebRTC Share Demo, attendee console, Chrome or Firefox</h2>
-  <div class="video-section">
+  <h2 id="mainTitleH2">WebRTC Share, attendee console, Chrome or Firefox</h2>
+  <div class="share-video-section">
   <h3 id="remoteIDH3"> Remote Share </h3>
     <video class="video-win1" id="video1" autoplay controls></video>
-    <video class="video-win2" id="video2" autoplay controls></video>
+    <div class="video-section">
+      <video class="video-win2" id="video2" autoplay controls></video>
+      <video class="video-win2" id="video3" autoplay controls></video>
+    </div>
     <div class="buttons-section">
+      <button class="myButton" type="button" onclick="startMedia();">Start Media</button>
+      <button class="myButton" type="button" onclick="stopMedia();">Stop Media</button>
       <button class="myButton" type="button" onclick="pause();">Pause</button>
       <button class="myButton" type="button" onclick="play();">Play</button>
       <button class="myButton" type="button" onclick="disconnect();">Disconnect</button>
@@ -112,12 +123,64 @@
   var video1Active = false;
   var video2 = document.getElementById('video2');
   var video2Active = false;
+  var localvid = document.getElementById('video3');
   var localStream = null;
   var mediaFlowing = false;
   var pconns = {};
   var mediaConstraints = {'mandatory': {
                           'OfferToReceiveAudio':true, 
                           'OfferToReceiveVideo':true}};
+
+  window.onload = function() {
+    startMedia();
+  }
+
+  function startMedia() {
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || window.navigator.mozGetUserMedia || navigator.msGetUserMedia;
+    window.URL = window.URL || window.webkitURL;
+    navigator.getUserMedia({video: true, audio: true}, successCallback, errorCallback);
+  }
+
+  function stopMedia() {
+    if (localvid.mozSrcObject) {
+      localvid.mozSrcObject.stop();
+      localvid.src = null;
+    } else {
+      localvid.src = "";
+      localStream.stop();
+    }
+    localStream = null;
+  }
+
+  function successCallback(stream) {
+    localStream = stream;
+    playLocalvideo();
+  }
+
+  function playLocalvideo() {
+    if (localStream) {
+      if (localvid.mozSrcObject) {
+        localvid.mozSrcObject = localStream;
+        localvid.play();
+      } else {
+        try {
+          localvid.src = window.URL.createObjectURL(localStream);
+          localvid.play();
+        } catch(e) {
+          console.log("Error setting video src: ", e); 
+        }   
+      }
+    }   
+  }
+
+  function onCreateOfferFailed() {
+    console.log("Create Offer failed");
+  }
+
+  function errorCallback(error) {
+    console.error('An error occurred: [CODE ' + error.code + ']');
+    return;
+  }
 
   function pause() {
     video1.pause();
@@ -128,9 +191,6 @@
     video1.play();
     video2.play();
   }
-
-  var patharray = window.location.host.split(':');
-  console.log(patharray[0]);
 
   // stop the connection on button click 
   function disconnect() {
@@ -154,6 +214,7 @@
     }
     video1.src = ""; 
     video2.src = ""; 
+    localvid.src = "";
     mediaFlowing = false;        
     video1Active = false;
     video2Active = false;
@@ -222,6 +283,14 @@
         console.log('Error setting remote description');   
       });
 
+    } else if (message.messageType === "answer" && mediaFlowing) {
+      var remoteDescription = message.peerDescription;
+      console.log(remoteDescription);
+      console.log('Received answer...');
+      console.log('Setting remote session description...' );
+      var RTCSessionDescription = window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.RTCSessionDescription;
+      pconns[pcID].setRemoteDescription(new RTCSessionDescription(remoteDescription));
+
     } else if (message.messageType === "iceCandidate" && mediaFlowing) {
       console.log('Received ICE candidate...');
       var RTCIceCandidate = window.mozRTCIceCandidate || window.webkitRTCIceCandidate || window.RTCIceCandidate;
@@ -258,7 +327,11 @@
         console.log("End of candidates");
       }
     };
-
+    
+    if (pcID==1 && localStream)
+    { 
+      pconns[1].addStream(localStream); 
+    }
     pconns[pcID].addEventListener("addstream", onRemoteStreamAdded, false);
     pconns[pcID].addEventListener("removestream", onRemoteStreamRemoved, false)
 
@@ -276,6 +349,8 @@
         video2.src = window.URL.createObjectURL(event.stream);
         video2.play();
         video2Active = true;
+        if (localStream) 
+         playLocalvideo(); 
       }
       if (pcID == 0)
         pconns[0].createAnswer(setLocalDescAndSendMessagePC0, onCreateAnswerFailed, mediaConstraints);

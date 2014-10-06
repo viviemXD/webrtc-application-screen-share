@@ -1,8 +1,8 @@
-
 // Replace with your server domain or ip address
-var socket = new WebSocket('ws://10.148.80.54:1337');
+var socket = new WebSocket('ws://10.148.80.138:1337');
 var video1 = null;
 var video2 = null;
+var video3 = null;
 var localStream = null;
 var localStream1 = null;
 var mediaFlowing = false;
@@ -11,10 +11,10 @@ var pending_request_id = null;
 var pconns = {};
 
 var mediaConstraints = {'mandatory': {
-                        'OfferToReceiveAudio':false, 
-                        'OfferToReceiveVideo':false}};
+                        'OfferToReceiveAudio':true, 
+                        'OfferToReceiveVideo':true}};
 
-function gotStream1(stream) {
+function gotShareStream(stream) {
   video1 = document.getElementById("video1");
   video1.src = URL.createObjectURL(stream);
   localStream = stream;
@@ -28,15 +28,16 @@ function gotStream1(stream) {
     console.log("No web socket connection");
   }
 
-  stream.onended = function() { console.log("Stream ended"); };
+  stream.onended = function() { console.log("Share stream ended"); };
 }
 
-function gotStream2(stream) {
+function gotAudioVideoStream(stream) {
   video2 = document.getElementById("video2");
+  video3 = document.getElementById("video3");  // may move this
   video2.src = URL.createObjectURL(stream);
   localStream1 = stream;
   connect();
-  stream.onended = function() { console.log("Stream ended"); };
+  stream.onended = function() { console.log("Audio Video stream ended"); };
 }
 
 function getUserMediaError() {
@@ -56,7 +57,7 @@ function onAccessApproved(id) {
                             maxHeight: screen.height,
                             minFrameRate: 1,
                             maxFrameRate: 5 }}
-  }, gotStream1, getUserMediaError);
+  }, gotShareStream, getUserMediaError);
 }
 
 document.querySelector('#share').addEventListener('click', function(e) {
@@ -95,6 +96,28 @@ function setLocalDescAndSendMessagePC1(sessionDescription) {
               }));
 }
 
+function setLocalDescAndSendMessagePC0Answer(sessionDescription) {
+  pconns[0].setLocalDescription(sessionDescription);
+  console.log("Sending: SDP");
+  console.log(sessionDescription);
+  socket.send(JSON.stringify({
+                    "pc": 0,
+                    "messageType": "answer",
+                    "peerDescription": sessionDescription
+              }));
+}
+
+function setLocalDescAndSendMessagePC1Answer(sessionDescription) {
+  pconns[1].setLocalDescription(sessionDescription);
+  console.log("Sending: SDP");
+  console.log(sessionDescription);
+  socket.send(JSON.stringify({
+                    "pc": 1,
+                    "messageType": "answer",
+                    "peerDescription": sessionDescription
+              }));
+}
+
 function onCreateOfferFailed() {
   console.log("Create Offer failed");
 }
@@ -114,7 +137,7 @@ function share() {
     navigator.webkitGetUserMedia({
       audio: true,
       video: true
-    }, gotStream2, getUserMediaError);
+    }, gotAudioVideoStream, getUserMediaError);
 
   } else {
     console.log("Local stream not running.");
@@ -149,11 +172,14 @@ function stop() {
   if (pconns[0] != null) {
     pconns[0].close();
     pconns[0] = null;
+  }
+  if (pconns[1] != null) {
     pconns[1].close();
     pconns[1] = null;
   }
   video1.src = "";
   video2.src = "";
+  video3.src = "";
   mediaFlowing = false;
   mediaFlowing1 = false;
 }
@@ -173,7 +199,27 @@ function onWebSocketMessage(evt) {
   var message = JSON.parse(evt.data);
   var pcID = message.pc;
 
-  if (message.messageType === "answer" && mediaFlowing) {
+  if(message.messageType === "offer") {
+    console.log("Received offer...")
+    if (!pconns[pcID]) {
+      createPeerConnection(pcID);
+    }
+    mediaFlowing = true;
+    console.log('Creating remote session description...' );
+
+    var remoteDescription = message.peerDescription;
+    var RTCSessionDescription = window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.RTCSessionDescription;
+    pconns[pcID].setRemoteDescription(new RTCSessionDescription(remoteDescription), function() {
+      console.log('Sending answer...');
+      if (pcID == 0)
+        pconns[0].createAnswer(setLocalDescAndSendMessagePC0Answer, onCreateAnswerFailed, mediaConstraints);
+      else
+        pconns[1].createAnswer(setLocalDescAndSendMessagePC1Answer, onCreateAnswerFailed, mediaConstraints);
+    }, function() {
+      console.log('Error setting remote description');
+    });
+
+  } else if (message.messageType === "answer" && mediaFlowing) {
     var remoteDescription = message.peerDescription;
     console.log(remoteDescription);
     console.log('Received answer...');
@@ -218,6 +264,7 @@ function createPeerConnection(pcID) {
       console.log("End of candidates.");
     }
   };
+
   console.log('Adding local stream...');
   pconns[pcID].addStream(localStream);
 
@@ -226,6 +273,8 @@ function createPeerConnection(pcID) {
 
   function onRemoteStreamAdded(event) {
     console.log("Added remote stream");
+    video3.src = window.URL.createObjectURL(event.stream);
+    video3.play();
   }
 
   function onRemoteStreamRemoved(event) {
