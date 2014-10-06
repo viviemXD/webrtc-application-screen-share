@@ -1,17 +1,18 @@
 webrtc-application-screen-share    
 ===============================
 
-Very simple demo that captures either the users screen or a selected application and shares the video stream over a WebRTC PeerConnection. Demo consists of a presenter who shares their screen or applications and an attendee who views the share on a web page.  Audio and video is also transmitted to and from both peers. The attendee can be either a Chrome or Firefox browser. The presenter must be using Chrome.
+Capture the users screen or application and share over a WebRTC PeerConnection. This simple demo consists of a presenter who shares their screen or applications and an attendee who views that share video on a web page.  Audio and video will also be transmitted between both peers. The attendee can be either a Chrome or Firefox browser. The presenter must be using Chrome.  So right now this is a two user demo, one presentor and one attendee only.
 
-This repo has three things.
+This repo has three pieces.
 
 1. Chrome packaged app to share screen or applications (Presenter).
 2. Server application using node.js and web socket.
 3. Client web page that receives and displays the shared video stream (Chrome or Firefox).
 
 
+
 - Presenter only works using Google Chrome, (Stable, Canary or Chromium).
-- No need for a Web Server, uses node.js which acts as both signaling and web server.
+- No need for a Web Server, it uses node.js which does both the WebRTC signaling and serves up the presentor web page.
 
 ![Architecture diagram](https://github.com/emannion/webrtc-application-screen-share/blob/master/arch.png "Arch diagram")
 
