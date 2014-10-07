@@ -1,12 +1,12 @@
 // Replace with your server domain or ip address
-var socket = new WebSocket('ws://10.148.80.138:1337');
-var video1 = null;
-var video2 = null;
-var video3 = null;
-var localStream = null;
-var localStream1 = null;
-var mediaFlowing = false;
-var mediaFlowing1 = false;
+var socket = new WebSocket('ws://192.168.1.4:1337');
+var shareVideo = null;
+var localVideo = null;
+var remoteVideo = null;
+var shareStream = null;
+var videoStream = null;
+var shareFlowing = false;
+var videoFlowing = false;
 var pending_request_id = null;
 var pconns = {};
 
@@ -15,9 +15,9 @@ var mediaConstraints = {'mandatory': {
                         'OfferToReceiveVideo':true}};
 
 function gotShareStream(stream) {
-  video1 = document.getElementById("video1");
-  video1.src = URL.createObjectURL(stream);
-  localStream = stream;
+  shareVideo = document.getElementById("shareVideo");
+  shareVideo.src = URL.createObjectURL(stream);
+  shareStream = stream;
 
   if ("WebSocket" in window) {
     socket.onopen = function() {
@@ -32,10 +32,10 @@ function gotShareStream(stream) {
 }
 
 function gotAudioVideoStream(stream) {
-  video2 = document.getElementById("video2");
-  video3 = document.getElementById("video3");  // may move this
-  video2.src = URL.createObjectURL(stream);
-  localStream1 = stream;
+  localVideo = document.getElementById("localVideo");
+  remoteVideo = document.getElementById("remoteVideo");  // may move this
+  localVideo.src = URL.createObjectURL(stream);
+  videoStream = stream;
   connect();
   stream.onended = function() { console.log("Audio Video stream ended"); };
 }
@@ -72,9 +72,9 @@ document.querySelector('#cancel').addEventListener('click', function(e) {
   disconnect();
 });
 
-// Two peerconnections are used to have Firefox compatability, this is
+// Two peerconnections are used for Firefox compatability, this is
 // because Chrome can do share and video using one PeerConnection but FF needs two.
-function setLocalDescAndSendMessagePC0(sessionDescription) {
+function setLocalDescAndSendMessagePC0Offer(sessionDescription) {
   pconns[0].setLocalDescription(sessionDescription);
   console.log("Sending: SDP");
   console.log(sessionDescription);
@@ -85,7 +85,7 @@ function setLocalDescAndSendMessagePC0(sessionDescription) {
               }));
 }
 
-function setLocalDescAndSendMessagePC1(sessionDescription) {
+function setLocalDescAndSendMessagePC1Offer(sessionDescription) {
   pconns[1].setLocalDescription(sessionDescription);
   console.log("Sending: SDP");
   console.log(sessionDescription);
@@ -123,15 +123,15 @@ function onCreateOfferFailed() {
 }
 
 function share() {
-  if (!mediaFlowing && localStream) {
+  if (!shareFlowing && shareStream) {
     if (!pconns[0]) {
       createPeerConnection(0);
     }
     console.log('Adding local stream...');
-    pconns[0].addStream(localStream);
-    mediaFlowing = true;
+    pconns[0].addStream(shareStream);
+    shareFlowing = true;
 
-    pconns[0].createOffer(setLocalDescAndSendMessagePC0, onCreateOfferFailed, mediaConstraints);
+    pconns[0].createOffer(setLocalDescAndSendMessagePC0Offer, onCreateOfferFailed, mediaConstraints);
 
     // grab camera and mic also
     navigator.webkitGetUserMedia({
@@ -145,14 +145,14 @@ function share() {
 }
 
 function connect() {
-  if (!mediaFlowing1 && localStream1) {
+  if (!videoFlowing && videoStream) {
     if (!pconns[1]) {
       createPeerConnection(1);
     }
     console.log('Adding local stream...');
-    pconns[1].addStream(localStream1);
-    mediaFlowing1 = true;
-    pconns[1].createOffer(setLocalDescAndSendMessagePC1, onCreateOfferFailed, mediaConstraints);
+    pconns[1].addStream(videoStream);
+    videoFlowing = true;
+    pconns[1].createOffer(setLocalDescAndSendMessagePC1Offer, onCreateOfferFailed, mediaConstraints);
   } else {
     console.log("Local stream not running.");
   }
@@ -177,11 +177,11 @@ function stop() {
     pconns[1].close();
     pconns[1] = null;
   }
-  video1.src = "";
-  video2.src = "";
-  video3.src = "";
-  mediaFlowing = false;
-  mediaFlowing1 = false;
+  shareVideo.src = "";
+  localVideo.src = "";
+  remoteVideo.src = "";
+  shareFlowing = false;
+  videoFlowing = false;
 }
 
 function onCreateOfferFailed() {
@@ -204,7 +204,7 @@ function onWebSocketMessage(evt) {
     if (!pconns[pcID]) {
       createPeerConnection(pcID);
     }
-    mediaFlowing = true;
+    shareFlowing = true;
     console.log('Creating remote session description...' );
 
     var remoteDescription = message.peerDescription;
@@ -219,7 +219,7 @@ function onWebSocketMessage(evt) {
       console.log('Error setting remote description');
     });
 
-  } else if (message.messageType === "answer" && mediaFlowing) {
+  } else if (message.messageType === "answer" && shareFlowing) {
     var remoteDescription = message.peerDescription;
     console.log(remoteDescription);
     console.log('Received answer...');
@@ -227,13 +227,13 @@ function onWebSocketMessage(evt) {
     var RTCSessionDescription = window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.RTCSessionDescription;
     pconns[pcID].setRemoteDescription(new RTCSessionDescription(remoteDescription));
 
-  } else if (message.messageType === "iceCandidate" && mediaFlowing) {
+  } else if (message.messageType === "iceCandidate" && shareFlowing) {
     console.log('Received ICE candidate...');
     var candidate = new RTCIceCandidate({sdpMLineIndex:message.candidate.sdpMLineIndex, sdpMid:message.candidate.sdpMid, candidate:message.candidate.candidate});
     console.log(candidate);
     pconns[pcID].addIceCandidate(candidate);
 
-  } else if (message.messageType === "bye" && mediaFlowing) {
+  } else if (message.messageType === "bye" && shareFlowing) {
     console.log("Received bye");
     stop();
   }
@@ -266,15 +266,15 @@ function createPeerConnection(pcID) {
   };
 
   console.log('Adding local stream...');
-  pconns[pcID].addStream(localStream);
+  pconns[pcID].addStream(shareStream);
 
   pconns[pcID].addEventListener("addstream", onRemoteStreamAdded, false);
   pconns[pcID].addEventListener("removestream", onRemoteStreamRemoved, false)
 
   function onRemoteStreamAdded(event) {
     console.log("Added remote stream");
-    video3.src = window.URL.createObjectURL(event.stream);
-    video3.play();
+    remoteVideo.src = window.URL.createObjectURL(event.stream);
+    remoteVideo.play();
   }
 
   function onRemoteStreamRemoved(event) {
