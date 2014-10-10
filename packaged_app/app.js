@@ -123,7 +123,7 @@ function onCreateOfferFailed() {
 }
 
 function share() {
-  if (!shareFlowing && shareStream) {
+  if (shareStream) {
     if (!pconns[0]) {
       createPeerConnection(0);
     }
@@ -140,7 +140,7 @@ function share() {
     }, gotAudioVideoStream, getUserMediaError);
 
   } else {
-    console.log("Local stream not running.");
+    console.log("Local share stream not running.");
   }
 }
 
@@ -169,6 +169,14 @@ function disconnect() {
 }
 
 function stop() {
+
+  localVideo.src = "";
+  videoStream.stop();                                                                                                                                                                                                                     
+  videoStream = null;
+  shareVideo.src = "";
+  shareStream.stop();                                                                                                                                                                                                                         
+  shareStream = null;
+
   if (pconns[0] != null) {
     pconns[0].close();
     pconns[0] = null;
@@ -236,6 +244,7 @@ function onWebSocketMessage(evt) {
   } else if (message.messageType === "bye" && shareFlowing) {
     console.log("Received bye");
     stop();
+
   }
 }
 
@@ -279,6 +288,7 @@ function createPeerConnection(pcID) {
 
   function onRemoteStreamRemoved(event) {
     console.log("Remove remote stream");
+    remoteVideo.src = "";
   }
 }
 

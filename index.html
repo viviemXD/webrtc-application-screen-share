@@ -144,6 +144,7 @@
   var remoteVideoActive = false;
   var localvid = document.getElementById('localVideo');
   var localStream = null;
+  var shuttingDown = false;
   var mediaFlowing = false;
   var pconns = {};
   var mediaConstraints = {'mandatory': {
@@ -166,7 +167,15 @@
       localvid.src = null;
     } else {
       localvid.src = "";
-      localStream.stop();
+      if (localStream)
+        localStream.stop();
+    }
+
+    if (mediaFlowing && !shuttingDown) {
+      if(pconns[1]) {
+        pconns[1].removeStream(localStream);
+        pconns[1].createOffer(setLocalDescAndSendMessagePC1Offer, onCreateOfferFailed, mediaConstraints);
+      }
     }
     localStream = null;
   }
@@ -174,6 +183,14 @@
   function successCallback(stream) {
     localStream = stream;
     playLocalvideo();
+
+    if (mediaFlowing) {
+      if (pconns[1]) {
+        shuttingDown = false;
+        pconns[1].addStream(localStream);
+        pconns[1].createOffer(setLocalDescAndSendMessagePC1Offer, onCreateOfferFailed, mediaConstraints); 
+      }
+    }
   }
 
   function playLocalvideo() {
@@ -213,6 +230,7 @@
 
   // stop the connection on button click 
   function disconnect() {
+    shuttingDown = true;
     console.log("disconnect()");    
     socket.send(JSON.stringify({
                   "pc": 0,
@@ -223,6 +241,9 @@
 
   function stop() {
     console.log("stop()");    
+
+    stopMedia();
+
     if (pconns[0] != null ) {
       pconns[0].close();
       pconns[0] = null;
@@ -264,6 +285,17 @@
                     "messageType": "answer",
                     "peerDescription": sessionDescription
                }));
+  }
+
+  function setLocalDescAndSendMessagePC1Offer(sessionDescription) {
+    pconns[1].setLocalDescription(sessionDescription);
+    console.log("Sending: SDP");
+    console.log(sessionDescription);
+    socket.send(JSON.stringify({
+                    "pc": 1,
+                    "messageType": "offer",
+                    "peerDescription": sessionDescription
+              }));
   }
 
   function onCreateOfferFailed() {
@@ -318,6 +350,7 @@
 
     } else if (message.messageType === 'bye' && mediaFlowing) {
       console.log("Received bye");
+      shuttingDown = true;
       stop();
     }
   }
@@ -367,7 +400,7 @@
       if (!remoteVideoActive) {
         remoteVideo.src = window.URL.createObjectURL(event.stream);
         remoteVideo.play();
-        remoteVideoActive= true;
+        remoteVideoActive = true;
         if (localStream) 
          playLocalvideo(); 
       }
