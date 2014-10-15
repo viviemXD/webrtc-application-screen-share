@@ -146,7 +146,7 @@
   var localStream = null;
   var shuttingDown = false;
   var mediaFlowing = false;
-  var removeVP8Codec = false;
+  var removeVP8Codec = true;
   var pconns = {};
   var mediaConstraints = {'mandatory': {
                           'OfferToReceiveAudio':true, 
@@ -261,7 +261,10 @@
   function removeVP8(sdp) {
     //updated_sdp = sdp.replace("m=video 1 RTP/SAVPF 100 116 117 96 120 121\r\n","m=video 1 RTP/SAVPF 120 121\r\n");
     updated_sdp = sdp.replace("m=video 1 RTP/SAVPF 100 116 117 96 120 121\r\n","m=video 1 RTP/SAVPF 120\r\n");
+    updated_sdp = updated_sdp.replace("","");
     updated_sdp = updated_sdp.replace("a=rtpmap:100 VP8/90000\r\n","");
+    updated_sdp = updated_sdp.replace("a=rtpmap:120 H264/90000\r\n","a=rtpmap:120 H264/90000\r\na=fmtp:120 profile-level-id=42e01f;packetization-mode=1\r\n");
+
     updated_sdp = updated_sdp.replace("a=rtcp-fb:100 nack\r\n","");
     updated_sdp = updated_sdp.replace("a=rtcp-fb:100 nack pli\r\n","");
     updated_sdp = updated_sdp.replace("a=rtcp-fb:100 ccm fir\r\n","");
@@ -352,9 +355,14 @@
       var remoteDescription = message.peerDescription; 
       var remoteDescription1 = message.peerDescription;
 
+      console.log("offer before manipulation: " + remoteDescription.sdp);
+
       if (removeVP8Codec) {
         // Remove VP8 from offer every time
         remoteDescription1.sdp = removeVP8(remoteDescription.sdp);
+
+      console.log("offer after manipulation: " + remoteDescription1.sdp);
+
       }      
 
       var RTCSessionDescription = window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.RTCSessionDescription;
@@ -437,10 +445,6 @@
         if (localStream) 
          playLocalvideo(); 
       }
-      if (pcID == 0)
-        pconns[0].createAnswer(setLocalDescAndSendMessagePC0Answer, errorCallback, mediaConstraints);
-      else
-        pconns[1].createAnswer(setLocalDescAndSendMessagePC1Answer, errorCallback, mediaConstraints);
     }
 
     function onRemoteStreamRemoved(event) {

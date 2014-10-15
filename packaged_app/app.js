@@ -1,5 +1,5 @@
 // Replace with your server domain or ip address
-var socket = new WebSocket('ws://192.168.1.2:1337');
+var socket = new WebSocket('ws://10.148.80.255:1337');
 var shareVideo = null;
 var localVideo = null;
 var remoteVideo = null;
@@ -166,12 +166,10 @@ function disconnect() {
 }
 
 function stop() {
-
-  localVideo.src = "";
   videoStream.stop();                                                                                                                                                                                                                     
   videoStream = null;
   shareVideo.src = "";
-  shareStream.stop();                                                                                                                                                                                                                         
+  shareStream.stop();
   shareStream = null;
 
   if (pconns[0] != null) {
@@ -212,9 +210,7 @@ function onWebSocketMessage(evt) {
         pconns[0].createAnswer(setLocalDescAndSendMessagePC0Answer, errorCallback, mediaConstraints);
       else
         pconns[1].createAnswer(setLocalDescAndSendMessagePC1Answer, errorCallback, mediaConstraints);
-    }, function() {
-      console.log('Error setting remote description');
-    });
+    }, errorCallback);
 
   } else if (message.messageType === "answer" && shareFlowing) {
     var remoteDescription = message.peerDescription;
