@@ -1,5 +1,5 @@
 // Replace with your server domain or ip address
-var socket = new WebSocket('ws://192.168.1.4:1337');
+var socket = new WebSocket('ws://192.168.1.2:1337');
 var shareVideo = null;
 var localVideo = null;
 var remoteVideo = null;
@@ -40,8 +40,9 @@ function gotAudioVideoStream(stream) {
   stream.onended = function() { console.log("Audio Video stream ended"); };
 }
 
-function getUserMediaError() {
-  console.log("getUserMedia() failed");
+function errorCallback(error) {
+  console.error('An error occurred: [CODE ' + error.code + ']');
+  return;
 }
 
 function onAccessApproved(id) {
@@ -57,7 +58,7 @@ function onAccessApproved(id) {
                             maxHeight: screen.height,
                             minFrameRate: 1,
                             maxFrameRate: 5 }}
-  }, gotShareStream, getUserMediaError);
+  }, gotShareStream, errorCallback);
 }
 
 document.querySelector('#share').addEventListener('click', function(e) {
@@ -118,10 +119,6 @@ function setLocalDescAndSendMessagePC1Answer(sessionDescription) {
               }));
 }
 
-function onCreateOfferFailed() {
-  console.log("Create Offer failed");
-}
-
 function share() {
   if (shareStream) {
     if (!pconns[0]) {
@@ -131,13 +128,13 @@ function share() {
     pconns[0].addStream(shareStream);
     shareFlowing = true;
 
-    pconns[0].createOffer(setLocalDescAndSendMessagePC0Offer, onCreateOfferFailed, mediaConstraints);
+    pconns[0].createOffer(setLocalDescAndSendMessagePC0Offer, errorCallback, mediaConstraints);
 
     // grab camera and mic also
     navigator.webkitGetUserMedia({
       audio: true,
       video: true
-    }, gotAudioVideoStream, getUserMediaError);
+    }, gotAudioVideoStream, errorCallback);
 
   } else {
     console.log("Local share stream not running.");
@@ -152,7 +149,7 @@ function connect() {
     console.log('Adding local stream...');
     pconns[1].addStream(videoStream);
     videoFlowing = true;
-    pconns[1].createOffer(setLocalDescAndSendMessagePC1Offer, onCreateOfferFailed, mediaConstraints);
+    pconns[1].createOffer(setLocalDescAndSendMessagePC1Offer, errorCallback, mediaConstraints);
   } else {
     console.log("Local stream not running.");
   }
@@ -192,14 +189,6 @@ function stop() {
   videoFlowing = false;
 }
 
-function onCreateOfferFailed() {
-  console.log("Create Offer failed");
-}
-
-function onCreateAnswerFailed() {
-  console.log("Create Answer failed");
-}
-
 socket.addEventListener("message", onWebSocketMessage, false);
 
 // process messages from web socket
@@ -220,9 +209,9 @@ function onWebSocketMessage(evt) {
     pconns[pcID].setRemoteDescription(new RTCSessionDescription(remoteDescription), function() {
       console.log('Sending answer...');
       if (pcID == 0)
-        pconns[0].createAnswer(setLocalDescAndSendMessagePC0Answer, onCreateAnswerFailed, mediaConstraints);
+        pconns[0].createAnswer(setLocalDescAndSendMessagePC0Answer, errorCallback, mediaConstraints);
       else
-        pconns[1].createAnswer(setLocalDescAndSendMessagePC1Answer, onCreateAnswerFailed, mediaConstraints);
+        pconns[1].createAnswer(setLocalDescAndSendMessagePC1Answer, errorCallback, mediaConstraints);
     }, function() {
       console.log('Error setting remote description');
     });

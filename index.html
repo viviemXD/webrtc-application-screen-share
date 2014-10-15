@@ -146,6 +146,7 @@
   var localStream = null;
   var shuttingDown = false;
   var mediaFlowing = false;
+  var removeVP8Codec = false;
   var pconns = {};
   var mediaConstraints = {'mandatory': {
                           'OfferToReceiveAudio':true, 
@@ -174,7 +175,7 @@
     if (mediaFlowing && !shuttingDown) {
       if(pconns[1]) {
         pconns[1].removeStream(localStream);
-        pconns[1].createOffer(setLocalDescAndSendMessagePC1Offer, onCreateOfferFailed, mediaConstraints);
+        pconns[1].createOffer(setLocalDescAndSendMessagePC1Offer, errorCallback, mediaConstraints);
       }
     }
     localStream = null;
@@ -188,7 +189,7 @@
       if (pconns[1]) {
         shuttingDown = false;
         pconns[1].addStream(localStream);
-        pconns[1].createOffer(setLocalDescAndSendMessagePC1Offer, onCreateOfferFailed, mediaConstraints); 
+        pconns[1].createOffer(setLocalDescAndSendMessagePC1Offer, errorCallback, mediaConstraints); 
       }
     }
   }
@@ -207,10 +208,6 @@
         }   
       }
     }   
-  }
-
-  function onCreateOfferFailed() {
-    console.log("Create Offer failed");
   }
 
   function errorCallback(error) {
@@ -260,23 +257,57 @@
     remoteVideoActive = false;
   }
 
+  // If you want to use H.264 then remove other stuff form the SDP
+  function removeVP8(sdp) {
+    //updated_sdp = sdp.replace("m=video 1 RTP/SAVPF 100 116 117 96 120 121\r\n","m=video 1 RTP/SAVPF 120 121\r\n");
+    updated_sdp = sdp.replace("m=video 1 RTP/SAVPF 100 116 117 96 120 121\r\n","m=video 1 RTP/SAVPF 120\r\n");
+    updated_sdp = updated_sdp.replace("a=rtpmap:100 VP8/90000\r\n","");
+    updated_sdp = updated_sdp.replace("a=rtcp-fb:100 nack\r\n","");
+    updated_sdp = updated_sdp.replace("a=rtcp-fb:100 nack pli\r\n","");
+    updated_sdp = updated_sdp.replace("a=rtcp-fb:100 ccm fir\r\n","");
+    updated_sdp = updated_sdp.replace("a=rtcp-fb:100 goog-remb\r\n","");
+    updated_sdp = updated_sdp.replace("a=rtpmap:116 red/90000\r\n","");
+    updated_sdp = updated_sdp.replace("a=rtpmap:117 ulpfec/90000\r\n","");
+    updated_sdp = updated_sdp.replace("a=rtpmap:96 rtx/90000\r\n","");
+    updated_sdp = updated_sdp.replace("a=fmtp:96 apt=100\r\n","");
+
+    updated_sdp = updated_sdp.replace("a=rtpmap:121 CAST1/90000\r\n","");
+    updated_sdp = updated_sdp.replace("a=rtcp-fb:121 ccm fir","");
+    updated_sdp = updated_sdp.replace("a=rtcp-fb:121 nack\r\n","");
+    updated_sdp = updated_sdp.replace("a=rtcp-fb:121 nack pli\r\n","");
+    updated_sdp = updated_sdp.replace("a=rtcp-fb:121 goog-remb\r\n","");
+
+    return updated_sdp;
+  }
+
+  function setLocalDescSuccess() {
+    console.log("setLocalDescSuccess success");
+  }
+
   // Two peerconnections are used to have Firefox compatability, this is
   // because Chrome can do share and video using one PeerConnection but FF needs two.
-  function setLocalDescAndSendMessagePC0(sessionDescription) {
-    pconns[0].setLocalDescription(sessionDescription);
-    console.log("Sending: SDP");
-    console.log(sessionDescription);
+ function setLocalDescAndSendMessagePC0Answer(sessionDescription) {
+   pconns[0].setLocalDescription(sessionDescription, setLocalDescSuccess, errorCallback);
+   console.log("Sending: SDP");
+   console.log(sessionDescription);
 
-    socket.send(JSON.stringify({
-                    "pc": 0,
-                    "messageType": "answer",
-                    "peerDescription": sessionDescription
-               }));
+   socket.send(JSON.stringify({
+                   "pc": 0,
+                   "messageType": "answer",
+                   "peerDescription": sessionDescription
+              }));
   }
 
   // send SDP over web socket
-  function setLocalDescAndSendMessagePC1(sessionDescription) {
-    pconns[1].setLocalDescription(sessionDescription);
+  function setLocalDescAndSendMessagePC1Answer(sessionDescription) {
+
+   if (removeVP8Codec) {
+      // Remove VP8 from offer every time
+      //sessionDescription.sdp = removeVP8(sessionDescription.sdp); 
+      pconns[1].setLocalDescription(sessionDescription, setLocalDescSuccess, errorCallback);
+   } else {
+    pconns[1].setLocalDescription(sessionDescription, setLocalDescSuccess, errorCallback);
+  }
     console.log("Sending: SDP");
     console.log(sessionDescription);
 
@@ -288,7 +319,7 @@
   }
 
   function setLocalDescAndSendMessagePC1Offer(sessionDescription) {
-    pconns[1].setLocalDescription(sessionDescription);
+    pconns[1].setLocalDescription(sessionDescription , setLocalDescSuccess, errorCallback);
     console.log("Sending: SDP");
     console.log(sessionDescription);
     socket.send(JSON.stringify({
@@ -298,13 +329,9 @@
               }));
   }
 
-  function onCreateOfferFailed() {
-    console.log("Create Offer failed");
-  }
-
-  function onCreateAnswerFailed() {
-    console.log("Create Answer failed");
-  }
+  function addCandidateSuccess() {
+    console.log("addCandidate success");
+  } 
 
   socket.addEventListener("message", onWebSocketMessage, false);
 
@@ -318,21 +345,27 @@
       if (!pconns[pcID]) {
         createPeerConnection(pcID);
       }
+
       mediaFlowing = true;
       console.log('Creating remote session description...' );
      
       var remoteDescription = message.peerDescription; 
+      var remoteDescription1 = message.peerDescription;
+
+      if (removeVP8Codec) {
+        // Remove VP8 from offer every time
+        remoteDescription1.sdp = removeVP8(remoteDescription.sdp);
+      }      
+
       var RTCSessionDescription = window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.RTCSessionDescription;
-      pconns[pcID].setRemoteDescription(new RTCSessionDescription(remoteDescription), function() {
+      pconns[pcID].setRemoteDescription(new RTCSessionDescription(remoteDescription1), function() {
         console.log('Sending answer...');
         if (pcID == 0)
-          pconns[0].createAnswer(setLocalDescAndSendMessagePC0, onCreateAnswerFailed, mediaConstraints);
+          pconns[0].createAnswer(setLocalDescAndSendMessagePC0Answer, errorCallback, mediaConstraints);
         else
-          pconns[1].createAnswer(setLocalDescAndSendMessagePC1, onCreateAnswerFailed, mediaConstraints);
+          pconns[1].createAnswer(setLocalDescAndSendMessagePC1Answer, errorCallback, mediaConstraints);
 
-      }, function() {  
-        console.log('Error setting remote description');   
-      });
+      }, errorCallback);  
 
     } else if (message.messageType === "answer" && mediaFlowing) {
       var remoteDescription = message.peerDescription;
@@ -346,7 +379,7 @@
       console.log('Received ICE candidate...');
       var RTCIceCandidate = window.mozRTCIceCandidate || window.webkitRTCIceCandidate || window.RTCIceCandidate;
       var candidate = new RTCIceCandidate({sdpMLineIndex:message.candidate.sdpMLineIndex, sdpMid:message.candidate.sdpMid, candidate:message.candidate.candidate});
-      pconns[pcID].addIceCandidate(candidate);
+      pconns[pcID].addIceCandidate(candidate, addCandidateSuccess, errorCallback);
 
     } else if (message.messageType === 'bye' && mediaFlowing) {
       console.log("Received bye");
@@ -405,9 +438,9 @@
          playLocalvideo(); 
       }
       if (pcID == 0)
-        pconns[0].createAnswer(setLocalDescAndSendMessagePC0, onCreateAnswerFailed, mediaConstraints);
+        pconns[0].createAnswer(setLocalDescAndSendMessagePC0Answer, errorCallback, mediaConstraints);
       else
-        pconns[1].createAnswer(setLocalDescAndSendMessagePC1, onCreateAnswerFailed, mediaConstraints);
+        pconns[1].createAnswer(setLocalDescAndSendMessagePC1Answer, errorCallback, mediaConstraints);
     }
 
     function onRemoteStreamRemoved(event) {
