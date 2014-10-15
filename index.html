@@ -353,20 +353,16 @@
       console.log('Creating remote session description...' );
      
       var remoteDescription = message.peerDescription; 
-      var remoteDescription1 = message.peerDescription;
-
-      console.log("offer before manipulation: " + remoteDescription.sdp);
 
       if (removeVP8Codec) {
+        console.log("offer before manipulation: " + remoteDescription.sdp);
         // Remove VP8 from offer every time
-        remoteDescription1.sdp = removeVP8(remoteDescription.sdp);
-
-      console.log("offer after manipulation: " + remoteDescription1.sdp);
-
+        remoteDescription.sdp = removeVP8(remoteDescription.sdp);
+        console.log("offer after manipulation: " + remoteDescription.sdp);
       }      
 
       var RTCSessionDescription = window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.RTCSessionDescription;
-      pconns[pcID].setRemoteDescription(new RTCSessionDescription(remoteDescription1), function() {
+      pconns[pcID].setRemoteDescription(new RTCSessionDescription(remoteDescription), function() {
         console.log('Sending answer...');
         if (pcID == 0)
           pconns[0].createAnswer(setLocalDescAndSendMessagePC0Answer, errorCallback, mediaConstraints);
