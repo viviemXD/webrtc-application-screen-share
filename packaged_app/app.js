@@ -1,5 +1,5 @@
 // Replace with your server domain or ip address
-var socket = new WebSocket('ws://10.148.80.255:1337');
+var socket = new WebSocket('ws://192.168.1.2:1337');
 var shareVideo = null;
 var localVideo = null;
 var remoteVideo = null;
