@@ -32,6 +32,39 @@
       height: 288px; 
       border: 1px solid black;
     }
+    .radio label:before {
+      border-radius: 8px;  
+    }
+    label {  
+      display: inline-block;  
+      cursor: pointer;  
+      position: relative;  
+      padding-left: 25px;  
+      margin-right: 15px;  
+      font-size: 13px;  
+    }
+    input[type=radio] {  
+      display: none;  
+    }
+    label:before {  
+      content: "";  
+      display: inline-block;  
+      width: 16px;  
+      height: 16px;  
+      margin-right: 10px;  
+      position: absolute;  
+       left: 0;  
+      bottombottom: 1px;  
+      background-color: #aaa;  
+      box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, .3), 0px 1px 0px 0px rgba(255, 255, 255, .8);  
+    }
+    input[type=radio]:checked + label:before {  
+      content: "\2022";  
+      color: #f3f3f3;  
+      font-size: 30px;  
+      text-align: center;  
+      line-height: 18px;  
+    } 
     .share-video-section {
       width: 770px;
       display: block;
@@ -62,7 +95,7 @@
       border: 1px solid #dcdcdc;
       display: inline-block;
       cursor: pointer;
-      color: #666666;
+      color: #667667;
       font-family: arial;
       font-size: 13px;
       font-weight: bold;
@@ -88,7 +121,7 @@
       text-align: center; 
       vertical-align: middle;
       cursor: pointer;
-      color: #666666;
+      color: #667667;
       font-family: arial;
       font-size: 13px;
       font-weight: bold;
@@ -98,6 +131,13 @@
     .table_buttons {
       text-align: center;
     }
+    .radio_buttons {
+      font-family: arial;
+      font-size: 13px;
+      font-weight: bold;
+      text-decoration: none;
+      text-shadow: 0px 1px 0px #ffffff;
+    }
   </style>
 
 </head>
@@ -106,6 +146,12 @@
   <h2 id="mainTitleH2">WebRTC Share, attendee console</h2>
   <div class="share-video-section">
     <h3 id="remoteIDH3"> Remote Share </h3>
+    <div class="radio">  
+        <input id="h264" type="radio" name="codec" onclick="handleRadioClick(this);" value="h264">  
+        <label for="h264">H.264</label>  
+        <input id="vp8" type="radio" name="codec" onclick="handleRadioClick(this);" value="vp8" checked="checked">
+        <label for="vp8">VP8</label><br><br>
+    </div>  
     <video class="video-win1" id="shareVideo" autoplay controls></video>
     <div class="video-section">
       <table>
@@ -146,11 +192,19 @@
   var localStream = null;
   var shuttingDown = false;
   var mediaFlowing = false;
-  var removeVP8Codec = true;
+  var removeVP8Codec = document.getElementById('h264').checked;
   var pconns = {};
   var mediaConstraints = {'mandatory': {
                           'OfferToReceiveAudio':true, 
                           'OfferToReceiveVideo':true}};
+
+  function handleRadioClick(myRadio) {
+    if (myRadio.value == 'h264') {
+      removeVP8Codec = true;
+    } else {
+      removeVP8Codec = false;
+    }
+  }
 
   window.onload = function() {
     startMedia();
