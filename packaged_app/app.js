@@ -166,11 +166,6 @@ function disconnect() {
 }
 
 function stop() {
-  videoStream.stop();                                                                                                                                                                                                                     
-  videoStream = null;
-  shareVideo.src = "";
-  shareStream.stop();
-  shareStream = null;
 
   if (pconns[0] != null) {
     pconns[0].close();
@@ -180,9 +175,18 @@ function stop() {
     pconns[1].close();
     pconns[1] = null;
   }
-  shareVideo.src = "";
-  localVideo.src = "";
-  remoteVideo.src = "";
+
+  if (videoStream) {
+    videoStream.stop(); 
+    videoStream = null;
+    localVideo.src = "";
+    remoteVideo.src = "";
+  }
+  if (shareStream) {
+    shareStream.stop();
+    shareStream = null;
+    shareVideo.src = "";
+  } 
   shareFlowing = false;
   videoFlowing = false;
 }

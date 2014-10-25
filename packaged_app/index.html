@@ -42,6 +42,20 @@
     position: relative;
     top: 1px;
   }
+  .table-header {
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    color: #667667;
+    font-family: arial;
+    font-size: 13px;
+    font-weight: bold;
+    text-decoration: none;
+    text-shadow: 0px 1px 0px #ffffff;
+  }
+  .table-buttons {
+    text-align: center;
+  }   
   body {
     background-image: url('clouds.jpg');
     background: url(clouds.jpg) no-repeat center center fixed; 
@@ -54,13 +68,13 @@
     -webkit-align-items: center;
     -webkit-flex-direction: column;
   }
-  .video_large {
+  .video-large {
     width: 640px;
     height: 480px;
     border: 1px solid #e2e2e2;
     box-shadow: 0 1px 1px rgba(0,0,0,0.2);
   }
-  .video_small {
+  .video-small {
     width: 316px;
     height: 280px;
     border: 1px solid #e2e2e2;
@@ -78,7 +92,7 @@
      width: 1000px;
      margin: 0 auto;
   }
-  .share-div, .video-div {
+  .share-div, .video-section {
     border: 1px solid white;
     min-height: 450px;
     color: white;
@@ -87,7 +101,7 @@
      width: 640px;
      background-color: #111;
   }
-  .video-div {
+  .video-section {
      width: 340px;
      background-color: #777;
   }
@@ -97,17 +111,29 @@
 <body>
   <div id="outer-div">
     <div class="share-div">
-      <video id="shareVideo" class="video_large" autoplay></video>
+      <video id="shareVideo" class="video-large" autoplay></video>
     </div>
-    <div class="video-div">
-      <video id="localVideo" class="video_small" autoplay></video>
-      <video id="remoteVideo" class="video_small" autoplay></video>
+    <div class="video-section">
+      <table>
+        <tr class="table-header">
+          <td>Local Video</td>
+          <td>Remote Video</td>
+        </tr>
+        <tr>
+          <td><video class="video-small" id="localVideo" autoplay controls></video></td>
+          <td><video class="video-small" id="remoteVideo" autoplay controls></video></td>
+        </tr>
+        <tr class="table-buttons">
+          <td>
+            <button class="myButton" id="share">Share</button>
+          </td>
+          <td>
+            <button class="myButton" id="cancel">Cancel</button>
+          </td>
+        </tr>
+      </table> 
     </div>
   </div>
-  <p>
-    <button class="myButton" id="share">Share</button>
-    <button class="myButton" id="cancel">Cancel</button>
-  </p>
   <script src="app.js"></script>
 </body>
 </html>
