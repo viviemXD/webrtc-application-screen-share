@@ -10,7 +10,6 @@ This repo has three pieces.
 3. Client web page that receives and displays the shared video stream (Chrome or Firefox).
 
 
-
 - Presenter only works using Google Chrome, (Stable, Canary or Chromium).
 - No need for a Web Server, it uses node.js which does both the WebRTC signaling and serves up the presentor web page.
 
