@@ -1,5 +1,6 @@
-// Replace with your server domain or ip address
-var socket = new WebSocket('ws://192.168.1.2:1337');
+// Replace with your server domain or ip address, or use configure button on app to set this
+var serverAddress = '192.168.1.2';
+var socket = null;
 var shareVideo = null;
 var localVideo = null;
 var remoteVideo = null;
@@ -19,6 +20,10 @@ function gotShareStream(stream) {
   shareVideo.src = URL.createObjectURL(stream);
   shareStream = stream;
 
+  var serverString = 'ws://' + serverAddress + ':1337';
+  socket = new WebSocket(serverString);
+  socket.addEventListener("message", onWebSocketMessage, false);
+  
   if ("WebSocket" in window) {
     socket.onopen = function() {
       console.log("WebSocket connection open");
@@ -41,7 +46,7 @@ function gotAudioVideoStream(stream) {
 }
 
 function errorCallback(error) {
-  console.error('An error occurred: [CODE ' + error.code + ']');
+  console.error('An error occurred: [CODE ' + error + ']');
   return;
 }
 
@@ -71,6 +76,22 @@ document.querySelector('#cancel').addEventListener('click', function(e) {
     chrome.desktopCapture.cancelChooseDesktopMedia(pending_request_id);
   }
   disconnect();
+});
+
+document.querySelector('#configure').addEventListener('click', function(e) {
+  var overlay = document.getElementById("overlay");
+  var popup = document.getElementById("popup");
+  overlay.style.display = "block";
+  popup.style.display = "block";
+  document.getElementById("serverAddress").value = serverAddress;
+});
+
+document.querySelector('#closeConfiguration').addEventListener('click', function(e) {
+  var overlay = document.getElementById("overlay");
+  var popup = document.getElementById("popup");
+  overlay.style.display = "none";
+  popup.style.display = "none"; 
+  serverAddress = document.getElementById("serverAddress").value;
 });
 
 // Two peerconnections are used for Firefox compatability, this is
@@ -175,7 +196,6 @@ function stop() {
     pconns[1].close();
     pconns[1] = null;
   }
-
   if (videoStream) {
     videoStream.stop(); 
     videoStream = null;
@@ -191,7 +211,7 @@ function stop() {
   videoFlowing = false;
 }
 
-socket.addEventListener("message", onWebSocketMessage, false);
+//socket.addEventListener("message", onWebSocketMessage, false);
 
 // process messages from web socket
 function onWebSocketMessage(evt) {

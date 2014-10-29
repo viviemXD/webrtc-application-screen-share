@@ -19,7 +19,7 @@
     border: 1px solid #dcdcdc;
     display: inline-block;
     cursor: pointer;
-    color: #666666;
+    color: #383113;
     font-family: arial;
     font-size: 13px;
     font-weight: bold;
@@ -42,11 +42,35 @@
     position: relative;
     top: 1px;
   }
+  .overlay-div {
+    display: none;      
+    position: fixed;  
+    left: 0px;    
+    top: 0px;       
+    width: 100%;     
+    height: 100%;        
+    background: #000; 
+    opacity: 0.5;      
+    z-index: 99999;   
+  }
+  .popup-div {
+    display: none;
+    position: fixed;
+    left: 50%;    
+    top: 50%;        
+    width: 300px;     
+    height: 150px;
+    margin-top: -75px;
+    margin-left: -150px;
+    background: #FFFFFF;
+    border: 2px solid #000;
+    z-index: 100000;    
+  }
   .table-header {
     text-align: center;
     vertical-align: middle;
     cursor: pointer;
-    color: #667667;
+    color: #383113;
     font-family: arial;
     font-size: 13px;
     font-weight: bold;
@@ -55,7 +79,21 @@
   }
   .table-buttons {
     text-align: center;
-  }   
+  }
+  .server-label {
+    font-family: 
+    Helvetica Neue,Helvetica,Arial,sans-serif; 
+    font-size: 12px; 
+    font-style: normal; 
+    font-variant: normal; 
+    font-weight: 700;
+  }
+  .server-box {
+	border:2px solid #456879;
+	border-radius:10px;
+	height: 22px;
+	width: 100px;
+  }
   body {
     background-image: url('clouds.jpg');
     background: url(clouds.jpg) no-repeat center center fixed; 
@@ -70,27 +108,25 @@
   }
   .video-large {
     width: 640px;
-    height: 480px;
+    height: 393px;
     border: 1px solid #e2e2e2;
     box-shadow: 0 1px 1px rgba(0,0,0,0.2);
   }
   .video-small {
     width: 316px;
-    height: 280px;
+    height: 240px;
     border: 1px solid #e2e2e2;
     box-shadow: 0 1px 1px rgba(0,0,0,0.2);
   }
-  div {
+  .outer-div {
+    width: 1000px;
     border-color: #000000;
     background: white; 
+    margin: 0 auto;
     border-size: 1px;
     border-style: solid;
     border-width: 1px;
     margin-right: 1px; /* this ap
-  }
-  .outer-div {
-     width: 1000px;
-     margin: 0 auto;
   }
   .share-div, .video-section {
     border: 1px solid white;
@@ -120,11 +156,12 @@
           <td>Remote Video</td>
         </tr>
         <tr>
-          <td><video class="video-small" id="localVideo" autoplay controls></video></td>
-          <td><video class="video-small" id="remoteVideo" autoplay controls></video></td>
+          <td><video class="video-small" id="localVideo" autoplay></video></td>
+          <td><video class="video-small" id="remoteVideo" autoplay></video></td>
         </tr>
         <tr class="table-buttons">
           <td>
+            <button class="myButton" id="configure">Configure</button>
             <button class="myButton" id="share">Share</button>
           </td>
           <td>
@@ -132,6 +169,13 @@
           </td>
         </tr>
       </table> 
+    </div>
+    <div class="overlay-div" id="overlay"></div>
+    <div class="popup-div" id="popup">
+      <form>
+         <label class="server-label"> Server Address </label><input class="server-box" id="serverAddress" size="15" type="text"/>
+        <button class="myButton" id="closeConfiguration">Close</button>
+      </form>
     </div>
   </div>
   <script src="app.js"></script>
