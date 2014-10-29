@@ -66,9 +66,7 @@ document.querySelector('#share').addEventListener('click', function(e) {
 
 ####  Client Attendee Steps 
 
-- Start Chrome or Firefox browser. 
+- Start Chrome or Firefox browser
 - Point browser to  e.g. http://\<your ip address\>:1337
-
 - You can test this on the same machine or across the network over two machines.
-
 
