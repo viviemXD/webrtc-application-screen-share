@@ -10,7 +10,6 @@ This repo has three pieces.
 3. Client web page that receives and displays the shared video stream (Chrome or Firefox).
 
 
-
 - Presenter only works using Google Chrome, (Stable, Canary or Chromium).
 - No need for a Web Server, it uses node.js which does both the WebRTC signaling and serves up the presentor web page.
 
@@ -66,9 +65,7 @@ document.querySelector('#share').addEventListener('click', function(e) {
 
 ####  Client Attendee Steps 
 
-- Start Chrome or Firefox browser. 
+- Start Chrome or Firefox browser
 - Point browser to  e.g. http://\<your ip address\>:1337
-
 - You can test this on the same machine or across the network over two machines.
-
 
