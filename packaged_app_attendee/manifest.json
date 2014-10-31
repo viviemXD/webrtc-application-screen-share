@@ -1,0 +1,18 @@
+{
+  "name": "WebRTC Screen & Application Share, Attendee Console",
+  "description": "Share your desktop or application using chrome desktopCapture, attendee console",
+  "version": "0.0.0.1",
+  "manifest_version": 2,
+  "icons": {
+    "16": "icon.png",
+    "128": "icon.png"
+  },
+  "app": {
+    "background": {
+      "scripts": ["background.js"]
+    }
+  },
+  "permissions": [
+    "videoCapture", "audioCapture", "desktopCapture"
+  ]
+}

@@ -1,5 +1,6 @@
+// This is the presentor packaged app
 // Replace with your server domain or ip address, or use configure button on app to set this
-var serverAddress = '192.168.1.2';
+var serverAddress = '10.148.80.255';
 var socket = null;
 var shareVideo = null;
 var localVideo = null;
