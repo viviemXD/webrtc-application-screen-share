@@ -1,4 +1,4 @@
-<!-- This is the Share attendee page used to view the share and video being sent from presentor console -->
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -436,6 +436,19 @@
       console.log("Received bye");
       shuttingDown = true;
       stop();
+
+    } else if (message.messageType === "publish" ) {
+      console.log("Received publish");
+
+      if (!localStream) {
+        startMedia();
+      }
+
+      socket.send(JSON.stringify({
+                  "pc": 0,
+                  "messageType": "join"
+                 }));
+
     }
   }
 
@@ -469,7 +482,7 @@
       pconns[1].addStream(localStream); 
     }
     pconns[pcID].addEventListener("addstream", onRemoteStreamAdded, false);
-    pconns[pcID].addEventListener("removestream", onRemoteStreamRemoved, false)
+    pconns[pcID].addEventListener("removestream", onRemoteStreamRemoved, false);
 
     function onRemoteStreamAdded(event) {
       console.log("Added remote stream");

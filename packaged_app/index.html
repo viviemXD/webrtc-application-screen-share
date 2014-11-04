@@ -66,6 +66,39 @@
     border: 2px solid #000;
     z-index: 100000;    
   }
+  .radio label:before {
+    border-radius: 8px;  
+  }
+  label {  
+    display: inline-block;  
+    cursor: pointer;  
+    position: relative;  
+    padding-left: 25px;  
+    margin-right: 15px;  
+    font-size: 13px;  
+  }
+  input[type=radio] {  
+    display: none;  
+  }
+  label:before {  
+    content: "";  
+    display: inline-block;  
+    width: 16px;  
+    height: 16px;  
+    margin-right: 10px;  
+    position: absolute;  
+    left: 0;  
+    bottombottom: 1px;  
+    background-color: #aaa;  
+    box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, .3), 0px 1px 0px 0px rgba(255, 255, 255, .8);  
+  }
+  input[type=radio]:checked + label:before {  
+    content: "\2022";  
+    color: #f3f3f3;  
+    font-size: 30px;  
+    text-align: center;  
+    line-height: 18px;  
+  }
   .table-header {
     text-align: center;
     vertical-align: middle;
@@ -162,7 +195,7 @@
         <tr class="table-buttons">
           <td>
             <button class="myButton" id="configure">Configure</button>
-            <button class="myButton" id="startVideo">Start Video</button>
+            <button class="myButton" id="share">Share</button>
           </td>
           <td>
             <button class="myButton" id="cancel">Cancel</button>
@@ -172,9 +205,23 @@
     </div>
     <div class="overlay-div" id="overlay"></div>
     <div class="popup-div" id="popup">
+      <div class="radio">  
+        <br>
+        <input id="vp8" type="radio" name="codec" onclick="handleRadioClick(this);" value="vp8" checked="checked"> 
+        <label for="vp8"> VP8</label>
+        <input id="h264" type="radio" name="codec" onclick="handleRadioClick(this);" value="h264">  
+        <label for="h264"> H.264</label><br><br>  
+      </div>
       <form>
-         <label class="server-label"> Server Address </label><input class="server-box" id="serverAddress" size="15" type="text"/>
+        <label class="server-label">  Server Address </label><input class="server-box" id="serverAddress" size="15" type="text"/><br><br>
         <button class="myButton" id="closeConfiguration">Close</button>
+      </form>
+    </div>
+    <div class="overlay-div" id="overlayMedia"></div>
+    <div class="popup-div" id="popupMedia">
+      <form>
+        <button class="myButton" id="joinMeeting">Join Meeting</button>
+        <button class="myButton" id="cancelMeeting">Cancel</button>
       </form>
     </div>
   </div>

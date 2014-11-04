@@ -1,6 +1,5 @@
-// This is the presentor packaged app
 // Replace with your server domain or ip address, or use configure button on app to set this
-var serverAddress = '10.148.80.255';
+var serverAddress = '192.168.1.3';
 var socket = null;
 var shareVideo = null;
 var localVideo = null;
@@ -9,6 +8,10 @@ var shareStream = null;
 var videoStream = null;
 var shareFlowing = false;
 var videoFlowing = false;
+var isPresentor = false;
+var shareVideoActive = false;
+var remoteVideoActive = false;
+var removeVP8Codec = false;
 var pending_request_id = null;
 var pconns = {};
 
@@ -16,20 +19,21 @@ var mediaConstraints = {'mandatory': {
                         'OfferToReceiveAudio':true, 
                         'OfferToReceiveVideo':true}};
 
+shareVideo = document.getElementById("shareVideo");
+
+var serverString = 'ws://' + serverAddress + ':1337';                                                                                                                                                                                       
+socket = new WebSocket(serverString);
+socket.addEventListener("message", onWebSocketMessage, false);
+
 function gotShareStream(stream) {
-  shareVideo = document.getElementById("shareVideo");
   shareVideo.src = URL.createObjectURL(stream);
   shareStream = stream;
+  share();
 
-  var serverString = 'ws://' + serverAddress + ':1337';
-  socket = new WebSocket(serverString);
-  socket.addEventListener("message", onWebSocketMessage, false);
-  
   if ("WebSocket" in window) {
     socket.onopen = function() {
       console.log("WebSocket connection open");
     };
-    share();
   } else {
     console.log("No web socket connection");
   }
@@ -42,7 +46,9 @@ function gotAudioVideoStream(stream) {
   remoteVideo = document.getElementById("remoteVideo");  // may move this
   localVideo.src = URL.createObjectURL(stream);
   videoStream = stream;
-  connect();
+  if (isPresentor) {
+    connect();
+  }
   stream.onended = function() { console.log("Audio Video stream ended"); };
 }
 
@@ -52,6 +58,7 @@ function errorCallback(error) {
 }
 
 function onAccessApproved(id) {
+  isPresentor = true;
   if (!id) {
     console.log("Access rejected.");
     return;
@@ -68,8 +75,12 @@ function onAccessApproved(id) {
 }
 
 document.querySelector('#share').addEventListener('click', function(e) {
-  pending_request_id = chrome.desktopCapture.chooseDesktopMedia(
-      ["screen", "window"], onAccessApproved);
+  isPresentor = true;
+  // turn on audio \ video on attendee
+  socket.send(JSON.stringify({
+                "pc": 0,
+                "messageType": "publish"
+             }));
 });
 
 document.querySelector('#cancel').addEventListener('click', function(e) {
@@ -92,8 +103,64 @@ document.querySelector('#closeConfiguration').addEventListener('click', function
   var popup = document.getElementById("popup");
   overlay.style.display = "none";
   popup.style.display = "none"; 
+  removeVP8Codec = document.getElementById('h264').checked;
   serverAddress = document.getElementById("serverAddress").value;
+  socket = new WebSocket(serverString);
 });
+
+function raiseMeetingNotification() {
+  var overlay = document.getElementById("overlayMedia");
+  var popup = document.getElementById("popupMedia");
+  overlay.style.display = "block";
+  popup.style.display = "block";
+}
+
+document.querySelector('#joinMeeting').addEventListener('click', function(e) {
+  startVideo();
+
+  socket.send(JSON.stringify({
+                "pc": 0,
+                "messageType": "join"
+             }));
+
+  closeMeetingNotification();
+});
+
+document.querySelector('#cancelMeeting').addEventListener('click', function(e) {
+  closeMeetingNotification();
+});
+
+function closeMeetingNotification() {
+  var overlay = document.getElementById("overlayMedia");
+  var popup = document.getElementById("popupMedia");
+  overlay.style.display = "none";
+  popup.style.display = "none"; 
+}
+
+function removeVP8(sdp) {
+  //updated_sdp = sdp.replace("m=video 1 RTP/SAVPF 100 116 117 96 120 121\r\n","m=video 1 RTP/SAVPF 120 121\r\n");
+  updated_sdp = sdp.replace("m=video 1 RTP/SAVPF 100 116 117 96 120 121\r\n","m=video 1 RTP/SAVPF 120\r\n");
+  updated_sdp = updated_sdp.replace("","");
+  updated_sdp = updated_sdp.replace("a=rtpmap:100 VP8/90000\r\n","");
+  updated_sdp = updated_sdp.replace("a=rtpmap:120 H264/90000\r\n","a=rtpmap:120 H264/90000\r\na=fmtp:120 profile-level-id=42e01f;packetization-mode=1\r\n");
+
+  updated_sdp = updated_sdp.replace("a=rtcp-fb:100 nack\r\n","");
+  updated_sdp = updated_sdp.replace("a=rtcp-fb:100 nack pli\r\n","");
+  updated_sdp = updated_sdp.replace("a=rtcp-fb:100 ccm fir\r\n","");
+  updated_sdp = updated_sdp.replace("a=rtcp-fb:100 goog-remb\r\n","");
+  updated_sdp = updated_sdp.replace("a=rtpmap:116 red/90000\r\n","");
+  updated_sdp = updated_sdp.replace("a=rtpmap:117 ulpfec/90000\r\n","");
+  updated_sdp = updated_sdp.replace("a=rtpmap:96 rtx/90000\r\n","");
+  updated_sdp = updated_sdp.replace("a=fmtp:96 apt=100\r\n","");
+
+  updated_sdp = updated_sdp.replace("a=rtpmap:121 CAST1/90000\r\n","");
+  updated_sdp = updated_sdp.replace("a=rtcp-fb:121 ccm fir\r\n","");
+  updated_sdp = updated_sdp.replace("a=rtcp-fb:121 nack\r\n","");
+  updated_sdp = updated_sdp.replace("a=rtcp-fb:121 nack pli\r\n","");
+  updated_sdp = updated_sdp.replace("a=rtcp-fb:121 goog-remb\r\n","");
+
+  return updated_sdp;
+}
 
 // Two peerconnections are used for Firefox compatability, this is
 // because Chrome can do share and video using one PeerConnection but FF needs two.
@@ -152,15 +219,19 @@ function share() {
 
     pconns[0].createOffer(setLocalDescAndSendMessagePC0Offer, errorCallback, mediaConstraints);
 
+    startVideo();
+
+  } else {
+    console.log("Local share stream not running.");
+  }
+}
+
+function startVideo() {
     // grab camera and mic also
     navigator.webkitGetUserMedia({
       audio: true,
       video: true
     }, gotAudioVideoStream, errorCallback);
-
-  } else {
-    console.log("Local share stream not running.");
-  }
 }
 
 function connect() {
@@ -206,13 +277,16 @@ function stop() {
   if (shareStream) {
     shareStream.stop();
     shareStream = null;
+  }
+  if (shareVideo) {
     shareVideo.src = "";
   } 
   shareFlowing = false;
   videoFlowing = false;
+  isPresentor = false;
+  shareVideoActive = false;                                                                                                                                                                                                                 
+  remoteVideoActive = false;
 }
-
-//socket.addEventListener("message", onWebSocketMessage, false);
 
 // process messages from web socket
 function onWebSocketMessage(evt) {
@@ -220,6 +294,7 @@ function onWebSocketMessage(evt) {
   var pcID = message.pc;
 
   if(message.messageType === "offer") {
+
     console.log("Received offer...")
     if (!pconns[pcID]) {
       createPeerConnection(pcID);
@@ -228,6 +303,12 @@ function onWebSocketMessage(evt) {
     console.log('Creating remote session description...' );
 
     var remoteDescription = message.peerDescription;
+
+    if (removeVP8Codec) {
+      // Remove VP8 from offer every time
+      remoteDescription.sdp = removeVP8(remoteDescription.sdp);
+    }
+
     var RTCSessionDescription = window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.RTCSessionDescription;
     pconns[pcID].setRemoteDescription(new RTCSessionDescription(remoteDescription), function() {
       console.log('Sending answer...');
@@ -255,6 +336,18 @@ function onWebSocketMessage(evt) {
     console.log("Received bye");
     stop();
 
+  } else if (message.messageType === "publish" ) {
+    console.log("Received publish");
+    if (!isPresentor) {
+      raiseMeetingNotification();
+    }
+
+  } else if (message.messageType === "join" ) {
+    console.log("Received join");
+    if (isPresentor) {
+      pending_request_id = chrome.desktopCapture.chooseDesktopMedia(
+        ["screen", "window"], onAccessApproved);
+    }
   }
 }
 
@@ -285,15 +378,28 @@ function createPeerConnection(pcID) {
   };
 
   console.log('Adding local stream...');
-  pconns[pcID].addStream(shareStream);
+  if (!isPresentor) {
+    pconns[pcID].addStream(videoStream);
+  }
 
   pconns[pcID].addEventListener("addstream", onRemoteStreamAdded, false);
   pconns[pcID].addEventListener("removestream", onRemoteStreamRemoved, false)
 
   function onRemoteStreamAdded(event) {
     console.log("Added remote stream");
-    remoteVideo.src = window.URL.createObjectURL(event.stream);
-    remoteVideo.play();
+
+    if (!shareVideoActive && !isPresentor) {
+      shareVideo.src = window.URL.createObjectURL(event.stream);
+      shareVideo.play();
+      shareVideoActive = true;
+       return;
+    }   
+
+    if (!remoteVideoActive) {
+      remoteVideo.src = window.URL.createObjectURL(event.stream);
+      remoteVideo.play();
+      remoteVideoActive = true;
+    }
   }
 
   function onRemoteStreamRemoved(event) {

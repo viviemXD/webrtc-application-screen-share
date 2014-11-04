@@ -3,12 +3,11 @@ webrtc-application-screen-share
 
 Capture the users screen or application and share over a WebRTC PeerConnection. This simple demo consists of a presenter who shares their screen or applications and an attendee who views that share video on a web page.  Audio and video will also be transmitted between both peers. The attendee can be either a Chrome or Firefox browser. The presenter must be using Chrome.  So right now this is a two user demo, one presentor and one attendee only.
 
-This repo has four pieces.
+This repo has three pieces.
 
-1. Presentor: Chrome packaged app to share screen applications and audio\video.
+1. Chrome packaged app to share screen applications and audio\video. Can be presentor or attendee depending who shares first.
 2. Server application using node.js and web socket.
 3. Attendee: Web page that receives and displays the shared video stream (Chrome or Firefox).
-4. Attendee: Chrome packaged app.
 
 
 - Presenter and Attendee packaged apps only work using Google Chrome, (Stable, Canary or Chromium).
@@ -54,13 +53,13 @@ document.querySelector('#share').addEventListener('click', function(e) {
 - Edit packaged_app/app.html (insert this machines ip address for WebSocket connection). Or use configure button when running.
 - run 'sudo node app.js'
 
-####  Client Presenter Packaged App steps (Chrome browser or Chromebook)
+####  Client Packaged App steps (Chrome browser or Chromebook)
 
 - Install packaged app in chrome
 - i.e. open 'chrome://extensions'
 - click 'Developer Mode' check box.
 - Click button 'Load unpacked extension'
-- Navigate to the packaged_app_presentor folder of this repo
+- Navigate to the packaged_app folder of this repo
 - Launch app by clicking 'launch' link in chrome://extensions
 -  Or use Chrome App Launcher to launch it.
 
@@ -69,14 +68,4 @@ document.querySelector('#share').addEventListener('click', function(e) {
 - Start Chrome or Firefox browser
 - Point browser to  e.g. http://\<your ip address\>:1337
 - You can test this on the same machine or across the network over two machines.
-
-####  Client Attendee Packaged App steps (Chrome browser or Chromebook)
-
-- Install packaged app in chrome
-- i.e. open 'chrome://extensions'
-- click 'Developer Mode' check box.
-- Click button 'Load unpacked extension'
-- Navigate to the packaged_app_attendee folder of this repo
-- Launch app by clicking 'launch' link in chrome://extensions
--  Or use Chrome App Launcher to launch it.
 
