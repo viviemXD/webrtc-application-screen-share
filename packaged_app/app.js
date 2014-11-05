@@ -1,5 +1,5 @@
 // Replace with your server domain or ip address, or use configure button on app to set this
-var serverAddress = '10.148.80.255';
+var serverAddress = '10.35.132.88' ;
 var socket = null;
 var shareVideo = null;
 var localVideo = null;
@@ -106,7 +106,9 @@ document.querySelector('#closeConfiguration').addEventListener('click', function
   popup.style.display = "none"; 
   removeVP8Codec = document.getElementById('h264').checked;
   serverAddress = document.getElementById("serverAddress").value;
+  serverString = 'ws://' + serverAddress + ':1337';                                                                                                                                                                                       
   socket = new WebSocket(serverString);
+  socket.addEventListener("message", onWebSocketMessage, false);
 });
 
 function raiseMeetingNotification() {
