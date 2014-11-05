@@ -351,13 +351,13 @@
   // send SDP over web socket
   function setLocalDescAndSendMessagePC1Answer(sessionDescription) {
 
-   if (removeVP8Codec) {
-      // Remove VP8 from offer every time
+    if (removeVP8Codec) {
+      // Remove VP8 from offer every time, disabled for now
       //sessionDescription.sdp = removeVP8(sessionDescription.sdp); 
       pconns[1].setLocalDescription(sessionDescription, setLocalDescSuccess, errorCallback);
-   } else {
-    pconns[1].setLocalDescription(sessionDescription, setLocalDescSuccess, errorCallback);
-  }
+    } else {
+      pconns[1].setLocalDescription(sessionDescription, setLocalDescSuccess, errorCallback);
+    }
     console.log("Sending: SDP");
     console.log(sessionDescription);
 
@@ -443,7 +443,8 @@
       if (!localStream) {
         startMedia();
       }
-
+      
+      // automatically join
       socket.send(JSON.stringify({
                   "pc": 0,
                   "messageType": "join"

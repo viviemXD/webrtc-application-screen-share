@@ -76,6 +76,7 @@ function onAccessApproved(id) {
 
 document.querySelector('#share').addEventListener('click', function(e) {
   isPresentor = true;
+
   // turn on audio \ video on attendee
   socket.send(JSON.stringify({
                 "pc": 0,
@@ -227,7 +228,7 @@ function share() {
 }
 
 function startVideo() {
-    // grab camera and mic also
+    // grab camera and mic
     navigator.webkitGetUserMedia({
       audio: true,
       video: true
@@ -284,7 +285,7 @@ function stop() {
   shareFlowing = false;
   videoFlowing = false;
   isPresentor = false;
-  shareVideoActive = false;                                                                                                                                                                                                                 
+  shareVideoActive = false;
   remoteVideoActive = false;
 }
 
@@ -305,7 +306,7 @@ function onWebSocketMessage(evt) {
     var remoteDescription = message.peerDescription;
 
     if (removeVP8Codec) {
-      // Remove VP8 from offer every time
+      // Remove VP8 from offer
       remoteDescription.sdp = removeVP8(remoteDescription.sdp);
     }
 
@@ -407,4 +408,3 @@ function createPeerConnection(pcID) {
     remoteVideo.src = "";
   }
 }
-
