@@ -5,8 +5,8 @@ Capture the users screen or application and share over a WebRTC PeerConnection. 
 
 This repo has three pieces.
 
-1. Chrome packaged app to share screen applications and audio\video. Can be presentor or attendee depending who shares first.
-2. Server application using node.js and web socket.
+1. Chrome packaged app to share screen applications and audio\video. Can be used both peers being presentor or attendee depending who shares first.
+2. Server application using node.js and web socket to relay messages between peers.
 3. Attendee: Web page that receives and displays the shared video stream (Chrome or Firefox).
 
 
@@ -47,11 +47,11 @@ document.querySelector('#share').addEventListener('click', function(e) {
 
 - Install Node.js  and  websocket (sudo npm install websocket)
 
-####  Server Steps (Tested on Linux and MacOS so far)
+####  Server Steps (Tested on Linux and MacOS so far, should work on Windows)
 
 - clone this repo to your machine, does not need to be to a web server.
 - Edit packaged_app/app.html (insert this machines ip address for WebSocket connection). Or use configure button when running.
-- run 'sudo node app.js'
+- run 'node app.js'  or 'sudo node app.js' depending on your user, try both.
 
 ####  Client Packaged App steps (Chrome browser or Chromebook)
 
