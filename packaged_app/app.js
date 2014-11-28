@@ -1,5 +1,5 @@
 // Replace with your server domain or ip address, or use configure button on app to set this
-var serverAddress = '10.35.132.88' ;
+var serverAddress = '192.168.1.5' ;
 var socket = null;
 var shareVideo = null;
 var localVideo = null;
@@ -142,7 +142,8 @@ function closeMeetingNotification() {
 
 function removeVP8(sdp) {
   //updated_sdp = sdp.replace("m=video 1 RTP/SAVPF 100 116 117 96 120 121\r\n","m=video 1 RTP/SAVPF 120 121\r\n");
-  updated_sdp = sdp.replace("m=video 1 RTP/SAVPF 100 116 117 96 120 121\r\n","m=video 1 RTP/SAVPF 120\r\n");
+  //updated_sdp = sdp.replace("m=video 1 RTP/SAVPF 100 116 117 96 120 121\r\n","m=video 1 RTP/SAVPF 120\r\n");
+  updated_sdp = sdp.replace("m=video 9 RTP/SAVPF 100 116 117 120 96\r\n","m=video 9 RTP/SAVPF 120\r\n");
   updated_sdp = updated_sdp.replace("","");
   updated_sdp = updated_sdp.replace("a=rtpmap:100 VP8/90000\r\n","");
   updated_sdp = updated_sdp.replace("a=rtpmap:120 H264/90000\r\n","a=rtpmap:120 H264/90000\r\na=fmtp:120 profile-level-id=42e01f;packetization-mode=1\r\n");
