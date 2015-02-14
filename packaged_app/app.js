@@ -105,6 +105,13 @@ document.querySelector('#closeConfiguration').addEventListener('click', function
   overlay.style.display = "none";
   popup.style.display = "none"; 
   removeVP8Codec = document.getElementById('h264').checked;
+
+  if (document.getElementById('small').checked) {
+    document.getElementById("remoteVideo").className = "video-small";
+  } else {
+    document.getElementById("remoteVideo").className = "video-large";
+  }
+
   serverAddress = document.getElementById("serverAddress").value;
   serverString = 'ws://' + serverAddress + ':1337';                                                                                                                                                                                       
   socket = new WebSocket(serverString);
@@ -141,6 +148,7 @@ function closeMeetingNotification() {
 }
 
 function removeVP8(sdp) {
+  console.log("SDP before manipulation: " + sdp);
   //updated_sdp = sdp.replace("m=video 1 RTP/SAVPF 100 116 117 96 120 121\r\n","m=video 1 RTP/SAVPF 120 121\r\n");
   //updated_sdp = sdp.replace("m=video 1 RTP/SAVPF 100 116 117 96 120 121\r\n","m=video 1 RTP/SAVPF 120\r\n");
   updated_sdp = sdp.replace("m=video 9 RTP/SAVPF 100 116 117 120 96\r\n","m=video 9 RTP/SAVPF 120\r\n");
@@ -162,6 +170,8 @@ function removeVP8(sdp) {
   updated_sdp = updated_sdp.replace("a=rtcp-fb:121 nack\r\n","");
   updated_sdp = updated_sdp.replace("a=rtcp-fb:121 nack pli\r\n","");
   updated_sdp = updated_sdp.replace("a=rtcp-fb:121 goog-remb\r\n","");
+  
+  console.log("SDP after manipulation: " + updated_sdp);
 
   return updated_sdp;
 }

@@ -59,7 +59,7 @@
     left: 50%;    
     top: 50%;        
     width: 300px;     
-    height: 150px;
+    height: 200px;
     margin-top: -75px;
     margin-left: -150px;
     background: #FFFFFF;
@@ -211,6 +211,13 @@
         <label for="vp8"> VP8</label>
         <input id="h264" type="radio" name="codec" onclick="handleRadioClick(this);" value="h264">  
         <label for="h264"> H.264</label><br><br>  
+      </div>
+      <div class="radio">  
+        <br>
+        <input id="small" type="radio" name="size" onclick="handleRadioClick(this);" value="small" checked="checked"> 
+        <label for="small"> small</label>
+        <input id="large" type="radio" name="size" onclick="handleRadioClick(this);" value="large">  
+        <label for="large"> large</label><br><br>  
       </div>
       <form>
         <label class="server-label">  Server Address </label><input class="server-box" id="serverAddress" size="15" type="text"/><br><br>
