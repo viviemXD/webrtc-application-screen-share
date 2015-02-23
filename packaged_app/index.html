@@ -140,6 +140,12 @@
     -webkit-flex-direction: column;
   }
   .video-large {
+    width: 1024px;
+    height: 576px;
+    border: 1px solid #e2e2e2;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+  }
+  .video-medium {
     width: 640px;
     height: 393px;
     border: 1px solid #e2e2e2;
@@ -180,7 +186,7 @@
 <body>
   <div id="outer-div">
     <div class="share-div">
-      <video id="shareVideo" class="video-large" autoplay></video>
+      <video id="shareVideo" class="video-medium" autoplay></video>
     </div>
     <div class="video-section">
       <table>
@@ -216,6 +222,8 @@
         <br>
         <input id="small" type="radio" name="size" onclick="handleRadioClick(this);" value="small" checked="checked"> 
         <label for="small"> small</label>
+        <input id="medium" type="radio" name="size" onclick="handleRadioClick(this);" value="medium">  
+        <label for="medium"> medium</label>
         <input id="large" type="radio" name="size" onclick="handleRadioClick(this);" value="large">  
         <label for="large"> large</label><br><br>  
       </div>

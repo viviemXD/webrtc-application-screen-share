@@ -12,6 +12,7 @@ var isPresentor = false;
 var shareVideoActive = false;
 var remoteVideoActive = false;
 var removeVP8Codec = false;
+var joinReceived = false;
 var pending_request_id = null;
 var pconns = {};
 
@@ -76,6 +77,7 @@ function onAccessApproved(id) {
 
 document.querySelector('#share').addEventListener('click', function(e) {
   isPresentor = true;
+  joinReceived = false;
 
   // turn on audio \ video on attendee
   socket.send(JSON.stringify({
@@ -100,6 +102,7 @@ document.querySelector('#configure').addEventListener('click', function(e) {
 });
 
 document.querySelector('#closeConfiguration').addEventListener('click', function(e) {
+  joinReceived = false; 
   var overlay = document.getElementById("overlay");
   var popup = document.getElementById("popup");
   overlay.style.display = "none";
@@ -108,6 +111,8 @@ document.querySelector('#closeConfiguration').addEventListener('click', function
 
   if (document.getElementById('small').checked) {
     document.getElementById("remoteVideo").className = "video-small";
+  } else if (document.getElementById('medium').checked) {
+    document.getElementById("remoteVideo").className = "video-medium";
   } else {
     document.getElementById("remoteVideo").className = "video-large";
   }
@@ -300,6 +305,7 @@ function stop() {
   isPresentor = false;
   shareVideoActive = false;
   remoteVideoActive = false;
+  joinReceived = false;
 }
 
 // process messages from web socket
@@ -358,7 +364,8 @@ function onWebSocketMessage(evt) {
 
   } else if (message.messageType === "join" ) {
     console.log("Received join");
-    if (isPresentor) {
+    if (isPresentor && !joinReceived) {
+      joinReceived = true;
       pending_request_id = chrome.desktopCapture.chooseDesktopMedia(
         ["screen", "window"], onAccessApproved);
     }
