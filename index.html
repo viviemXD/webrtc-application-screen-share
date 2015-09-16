@@ -304,7 +304,7 @@
     remoteVideoActive = false;
   }
 
-  // remove VP8 from SDP from OpenH264 build of Chrome
+  // remove VP8 to negotiate H.264 from SDP coming from OpenH264 build of Chrome
   function removeVP8(sdp) {
     updated_sdp = sdp.replace("m=video 9 UDP/TLS/RTP/SAVPF 100 107 116 117 96\r\n","m=video 9 RTP/SAVPF 107\r\n");
     updated_sdp = updated_sdp.replace("","");
@@ -324,7 +324,7 @@
   }
 
 /*
-  // remove VP8 to negotiate H.264 from SDP from Chromebook 
+  // remove VP8 to negotiate H.264 from SDP coming from Chromebook 
   function removeVP8(sdp) {
     //updated_sdp = sdp.replace("m=video 1 RTP/SAVPF 100 116 117 96 120 121\r\n","m=video 1 RTP/SAVPF 120 121\r\n");
     //updated_sdp = sdp.replace("m=video 1 RTP/SAVPF 100 116 117 96 120 121\r\n","m=video 1 RTP/SAVPF 120\r\n");
