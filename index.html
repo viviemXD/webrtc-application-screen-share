@@ -304,7 +304,27 @@
     remoteVideoActive = false;
   }
 
-  // If you want to use H.264 then remove other stuff form the SDP
+  // remove VP8 from SDP from OpenH264 build of Chrome
+  function removeVP8(sdp) {
+    updated_sdp = sdp.replace("m=video 9 UDP/TLS/RTP/SAVPF 100 107 116 117 96\r\n","m=video 9 RTP/SAVPF 107\r\n");
+    updated_sdp = updated_sdp.replace("","");
+    updated_sdp = updated_sdp.replace("a=rtpmap:100 VP8/90000\r\n","");
+    updated_sdp = updated_sdp.replace("a=rtpmap:107 H264/90000\r\n","a=rtpmap:107 H264/90000\r\na=fmtp:107 profile-level-id=42e01f;packetization-mode=1\r\n");
+
+    updated_sdp = updated_sdp.replace("a=rtcp-fb:100 nack\r\n","");
+    updated_sdp = updated_sdp.replace("a=rtcp-fb:100 nack pli\r\n","");
+    updated_sdp = updated_sdp.replace("a=rtcp-fb:100 ccm fir\r\n","");
+    updated_sdp = updated_sdp.replace("a=rtcp-fb:100 goog-remb\r\n","");
+    updated_sdp = updated_sdp.replace("a=rtpmap:116 red/90000\r\n","");
+    updated_sdp = updated_sdp.replace("a=rtpmap:117 ulpfec/90000\r\n","");
+    updated_sdp = updated_sdp.replace("a=rtpmap:96 rtx/90000\r\n","");
+    updated_sdp = updated_sdp.replace("a=fmtp:96 apt=100\r\n","");
+
+    return updated_sdp;
+  }
+
+/*
+  // remove VP8 to negotiate H.264 from SDP from Chromebook 
   function removeVP8(sdp) {
     //updated_sdp = sdp.replace("m=video 1 RTP/SAVPF 100 116 117 96 120 121\r\n","m=video 1 RTP/SAVPF 120 121\r\n");
     //updated_sdp = sdp.replace("m=video 1 RTP/SAVPF 100 116 117 96 120 121\r\n","m=video 1 RTP/SAVPF 120\r\n");
@@ -330,6 +350,7 @@
 
     return updated_sdp;
   }
+*/
 
   function setLocalDescSuccess() {
     console.log("setLocalDescSuccess success");
