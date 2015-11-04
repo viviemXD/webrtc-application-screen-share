@@ -287,14 +287,16 @@ function stop() {
     pconns[1].close();
     pconns[1] = null;
   }
-  if (videoStream) {
-    videoStream.stop(); 
+  if (videoStream.active) {
+    var track = videoStream.getTracks()[0]; 
+    track.stop();
     videoStream = null;
     localVideo.src = "";
     remoteVideo.src = "";
   }
   if (shareStream) {
-    shareStream.stop();
+    var track = shareStream.getTracks()[0];  
+    track.stop();
     shareStream = null;
   }
   if (shareVideo) {
