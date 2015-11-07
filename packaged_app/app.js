@@ -17,8 +17,8 @@ var pending_request_id = null;
 var pconns = {};
 
 var mediaConstraints = {'mandatory': {
-                        'OfferToReceiveAudio':true, 
-                        'OfferToReceiveVideo':true}};
+                        'offerToReceiveAudio':true, 
+                        'offerToReceiveVideo':true}};
 
 shareVideo = document.getElementById("shareVideo");
 

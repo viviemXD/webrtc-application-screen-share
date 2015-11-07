@@ -215,8 +215,10 @@
       localvid.src = null;
     } else {
       localvid.src = "";
-      if (localStream)
-        localStream.stop();
+      if (localStream.active) {
+        var track = localStream.getTracks()[0]; 
+        track.stop();
+      }
     }
 
     if (mediaFlowing && !shuttingDown) {
