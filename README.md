@@ -50,7 +50,7 @@ document.querySelector('#share').addEventListener('click', function(e) {
 ####  Server Steps (Tested on Linux, MacOS and Windows)
 
 - clone this repo to your machine, does not need to be to a web server.
-- Edit packaged_app/app.html (insert this machines ip address for WebSocket connection). Or use configure button when running.
+- Edit packaged_app/app.js (insert this machines ip address for WebSocket connection). Or use configure button when running.
 - run 'node app.js'  or 'sudo node app.js' depending on your user, try both.
 
 ####  Client Packaged App steps (Chrome browser or Chromebook)
