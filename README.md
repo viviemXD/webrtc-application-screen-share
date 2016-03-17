@@ -49,12 +49,12 @@ document.querySelector('#share').addEventListener('click', function(e) {
 
 ####  Server Steps (Tested on Linux, MacOS and Windows)
 
-- clone this repo to your machine, does not need to be to a web server.
+- Clone this repo to your machine, does not need to be to a web server.
 - Generate keys unless you have real ones, run these commands in the same folder as app.js (find equivalant commands for Windows or Linux these are for mac)
   -  openssl genrsa -out webrtcwwsocket-key.pem 1024
   -  openssl req -new -key webrtcwwsocket-key.pem -out webrtcwwsocket-csr.pem
   -  openssl x509 -req -in webrtcwwsocket-csr.pem -signkey webrtcwwsocket-key.pem -out webrtcwwsocket-cert.pem
-- Edit packaged_app/app.html (insert this machines ip address for WebSocket connection). Or use configure button when running.
+- Edit packaged_app/app.js (insert this machines ip address for WebSocket connection). Or use configure button when running the extension.
 - run 'sudo node app.js' 
 
 ####  Client Packaged App steps (Chrome browser or Chromebook)
