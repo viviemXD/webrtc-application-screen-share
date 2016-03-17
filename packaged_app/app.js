@@ -22,7 +22,7 @@ var mediaConstraints = {'mandatory': {
 
 shareVideo = document.getElementById("shareVideo");
 
-var serverString = 'ws://' + serverAddress + ':1337';                                                                                                                                                                                       
+var serverString = 'wss://' + serverAddress + ':443';                                                                                                                                                                                       
 socket = new WebSocket(serverString);
 socket.addEventListener("message", onWebSocketMessage, false);
 
@@ -118,7 +118,7 @@ document.querySelector('#closeConfiguration').addEventListener('click', function
   }
 
   serverAddress = document.getElementById("serverAddress").value;
-  serverString = 'ws://' + serverAddress + ':1337';                                                                                                                                                                                       
+  serverString = 'wss://' + serverAddress + ':443';                                                                                                                                                                                       
   socket = new WebSocket(serverString);
   socket.addEventListener("message", onWebSocketMessage, false);
 });
@@ -154,8 +154,9 @@ function closeMeetingNotification() {
 
 function removeVP8(sdp) {
   console.log("SDP before manipulation: " + sdp);
-  //updated_sdp = sdp.replace("m=video 1 RTP/SAVPF 100 116 117 96 120 121\r\n","m=video 1 RTP/SAVPF 120 121\r\n");
-  //updated_sdp = sdp.replace("m=video 1 RTP/SAVPF 100 116 117 96 120 121\r\n","m=video 1 RTP/SAVPF 120\r\n");
+
+  // TODO An easier way to select h.264 is to just move the payload type number of the codec you want selected to the start of the list.
+  // instead of all the SDP replace calls.
   updated_sdp = sdp.replace("m=video 9 RTP/SAVPF 100 116 117 120 96\r\n","m=video 9 RTP/SAVPF 120\r\n");
   updated_sdp = updated_sdp.replace("","");
   updated_sdp = updated_sdp.replace("a=rtpmap:100 VP8/90000\r\n","");
@@ -415,7 +416,7 @@ function createPeerConnection(pcID) {
       shareVideo.src = window.URL.createObjectURL(event.stream);
       shareVideo.play();
       shareVideoActive = true;
-       return;
+      return;
     }   
 
     if (!remoteVideoActive) {

@@ -1,17 +1,17 @@
 webrtc-application-screen-share    
 ===============================
 
-Capture the users screen, application, audio or video and share over a WebRTC PeerConnection. This simple demo consists of a presenter who shares their screen or applications and an attendee who views that share video on a web page or a chrome extension.  The attendee can be either a Chrome extension or Firefox browser. The presenter must be using Chrome or a Chrome extension.  So right now this is a two user demo, one presentor and one attendee only.
+Capture the users screen, application, audio or video and share over a WebRTC PeerConnection. This simple demo consists of a presenter who shares their screen or applications and an attendee who views that share video on a web page or a chrome extension.  The attendee can be either a Chrome extension or Firefox browser. The presenter must be using the Chrome extension.  So right now this is a two user demo, one presentor and one attendee only.
 
 This repo has three pieces.
 
-1. Chrome packaged app to share screen applications and audio\video. Can be used both peers being presentor or attendee depending who shares first.
+1. Chrome packaged app to share screen applications and audio\video. Can be used by both peers being presentor or attendee depending who shares first.
 2. Server application using node.js and web socket to relay messages between peers.
 3. Attendee: Web page that receives and displays the shared video stream (Chrome or Firefox).
 
 
 - Presenter and Attendee packaged apps only work using Google Chrome, (Stable, Canary or Chromium).
-- No need for a Web Server, it uses node.js which does both the WebRTC signaling and serves up the presentor web page.
+- No need for a Web Server, it uses node.js which does both the WebRTC signaling and serves up the presentor web page (index.html).
 
 ![Architecture diagram](https://github.com/emannion/webrtc-application-screen-share/blob/master/arch.png "Arch diagram")
 
@@ -50,8 +50,12 @@ document.querySelector('#share').addEventListener('click', function(e) {
 ####  Server Steps (Tested on Linux, MacOS and Windows)
 
 - clone this repo to your machine, does not need to be to a web server.
+- Generate keys unless you have real ones, run these commands in the same folder as app.js (find equivalant commands for Windows or Linux these are for mac)
+  -  openssl genrsa -out webrtcwwsocket-key.pem 1024
+  -  openssl req -new -key webrtcwwsocket-key.pem -out webrtcwwsocket-csr.pem
+  -  openssl x509 -req -in webrtcwwsocket-csr.pem -signkey webrtcwwsocket-key.pem -out webrtcwwsocket-cert.pem
 - Edit packaged_app/app.html (insert this machines ip address for WebSocket connection). Or use configure button when running.
-- run 'node app.js'  or 'sudo node app.js' depending on your user, try both.
+- run 'sudo node app.js' 
 
 ####  Client Packaged App steps (Chrome browser or Chromebook)
 
@@ -66,6 +70,7 @@ document.querySelector('#share').addEventListener('click', function(e) {
 ####  Client Attendee Web Page Steps 
 
 - Start Chrome or Firefox browser
-- Point browser to  e.g. http://\<your node.js ip address\>:1337
+- Point browser to  e.g. https://\<your node.js ip address\>
+- Accept the self signed cert in which ever way the browser allows.
 - You can test this on the same machine or across the network over two machines.
 
