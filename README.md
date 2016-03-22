@@ -66,6 +66,7 @@ document.querySelector('#share').addEventListener('click', function(e) {
 - Navigate to the packaged_app folder of this repo.
 - Launch app by clicking 'launch' link in chrome://extensions
 -  Or use Chrome App Launcher to launch it.
+- If you get wss errors you may need to load the cert in a Crome browser tab first by clicking on https://\<your node.js ip address\> and accepting the cert.
 
 ####  Client Attendee Web Page Steps 
 

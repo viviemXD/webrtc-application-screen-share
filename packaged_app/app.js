@@ -154,37 +154,21 @@ function closeMeetingNotification() {
 
 function removeVP8(sdp) {
   console.log("SDP before manipulation: " + sdp);
-
-  // TODO An easier way to select h.264 is to just move the payload type number of the codec you want selected to the start of the list.
-  // instead of all the SDP replace calls.
-  updated_sdp = sdp.replace("m=video 9 RTP/SAVPF 100 116 117 120 96\r\n","m=video 9 RTP/SAVPF 120\r\n");
-  updated_sdp = updated_sdp.replace("","");
-  updated_sdp = updated_sdp.replace("a=rtpmap:100 VP8/90000\r\n","");
-  updated_sdp = updated_sdp.replace("a=rtpmap:120 H264/90000\r\n","a=rtpmap:120 H264/90000\r\na=fmtp:120 profile-level-id=42e01f;packetization-mode=1\r\n");
-
-  updated_sdp = updated_sdp.replace("a=rtcp-fb:100 nack\r\n","");
-  updated_sdp = updated_sdp.replace("a=rtcp-fb:100 nack pli\r\n","");
-  updated_sdp = updated_sdp.replace("a=rtcp-fb:100 ccm fir\r\n","");
-  updated_sdp = updated_sdp.replace("a=rtcp-fb:100 goog-remb\r\n","");
-  updated_sdp = updated_sdp.replace("a=rtpmap:116 red/90000\r\n","");
-  updated_sdp = updated_sdp.replace("a=rtpmap:117 ulpfec/90000\r\n","");
-  updated_sdp = updated_sdp.replace("a=rtpmap:96 rtx/90000\r\n","");
-  updated_sdp = updated_sdp.replace("a=fmtp:96 apt=100\r\n","");
-
-  updated_sdp = updated_sdp.replace("a=rtpmap:121 CAST1/90000\r\n","");
-  updated_sdp = updated_sdp.replace("a=rtcp-fb:121 ccm fir\r\n","");
-  updated_sdp = updated_sdp.replace("a=rtcp-fb:121 nack\r\n","");
-  updated_sdp = updated_sdp.replace("a=rtcp-fb:121 nack pli\r\n","");
-  updated_sdp = updated_sdp.replace("a=rtcp-fb:121 goog-remb\r\n","");
-  
+  updated_sdp = sdp.replace("m=video 9 UDP/TLS/RTP/SAVPF 100 101 116 117 120 96\r\n", "m=video 9 UDP/TLS/RTP/SAVPF 120 100 101 116 117 96\r\n");
+  //updated_sdp = sdp.replace("m=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n","m=video 9 UDP/TLS/RTP/SAVPF 126 120 97\r\n"); 
   console.log("SDP after manipulation: " + updated_sdp);
-
   return updated_sdp;
 }
 
 // Two peerconnections are used for Firefox compatability, this is
 // because Chrome can do share and video using one PeerConnection but FF needs two.
 function setLocalDescAndSendMessagePC0Offer(sessionDescription) {
+
+  if (removeVP8Codec) {
+    // Remove VP8 from offer
+    sessionDescription.sdp = removeVP8(sessionDescription.sdp);
+  }
+
   pconns[0].setLocalDescription(sessionDescription);
   console.log("Sending: SDP");
   console.log(sessionDescription);
@@ -196,6 +180,12 @@ function setLocalDescAndSendMessagePC0Offer(sessionDescription) {
 }
 
 function setLocalDescAndSendMessagePC1Offer(sessionDescription) {
+
+  if (removeVP8Codec) {
+    // Remove VP8 from offer
+    sessionDescription.sdp = removeVP8(sessionDescription.sdp);
+  }
+
   pconns[1].setLocalDescription(sessionDescription);
   console.log("Sending: SDP");
   console.log(sessionDescription);

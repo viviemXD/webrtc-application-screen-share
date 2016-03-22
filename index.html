@@ -347,20 +347,8 @@
 
   // remove VP8 to negotiate H.264 from SDP coming from OpenH264 build of Chrome
   function removeVP8(sdp) {
-    updated_sdp = sdp.replace("m=video 9 UDP/TLS/RTP/SAVPF 100 107 116 117 96\r\n","m=video 9 RTP/SAVPF 107\r\n");
-    updated_sdp = updated_sdp.replace("","");
-    updated_sdp = updated_sdp.replace("a=rtpmap:100 VP8/90000\r\n","");
-    updated_sdp = updated_sdp.replace("a=rtpmap:107 H264/90000\r\n","a=rtpmap:107 H264/90000\r\na=fmtp:107 profile-level-id=42e01f;packetization-mode=1\r\n");
-
-    updated_sdp = updated_sdp.replace("a=rtcp-fb:100 nack\r\n","");
-    updated_sdp = updated_sdp.replace("a=rtcp-fb:100 nack pli\r\n","");
-    updated_sdp = updated_sdp.replace("a=rtcp-fb:100 ccm fir\r\n","");
-    updated_sdp = updated_sdp.replace("a=rtcp-fb:100 goog-remb\r\n","");
-    updated_sdp = updated_sdp.replace("a=rtpmap:116 red/90000\r\n","");
-    updated_sdp = updated_sdp.replace("a=rtpmap:117 ulpfec/90000\r\n","");
-    updated_sdp = updated_sdp.replace("a=rtpmap:96 rtx/90000\r\n","");
-    updated_sdp = updated_sdp.replace("a=fmtp:96 apt=100\r\n","");
-
+    updated_sdp = sdp.replace("m=video 9 UDP/TLS/RTP/SAVPF 100 101 116 117 120 96\r\n","m=video 9 UDP/TLS/RTP/SAVPF 120 100 101 116 117 96\r\n");
+    updated_sdp = sdp.replace("m=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n","m=video 9 UDP/TLS/RTP/SAVPF 126 120 97\r\n");
     return updated_sdp;
   }
 
@@ -442,7 +430,7 @@
         console.log("offer after manipulation: " + remoteDescription.sdp);
       }      
 
-      var RTCSessionDescription = window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.RTCSessionDescription;
+      var RTCSessionDescription = window.RTCSessionDescription || window.webkitRTCSessionDescription || window.RTCSessionDescription;
       pconns[pcID].setRemoteDescription(new RTCSessionDescription(remoteDescription), function() {
         console.log('Sending answer...');
         if (pcID == 0)
@@ -457,12 +445,12 @@
       console.log(remoteDescription);
       console.log('Received answer...');
       console.log('Setting remote session description...' );
-      var RTCSessionDescription = window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.RTCSessionDescription;
+      var RTCSessionDescription = window.RTCSessionDescription || window.webkitRTCSessionDescription || window.RTCSessionDescription;
       pconns[pcID].setRemoteDescription(new RTCSessionDescription(remoteDescription));
 
     } else if (message.messageType === "iceCandidate" && mediaFlowing) {
       console.log('Received ICE candidate...');
-      var RTCIceCandidate = window.mozRTCIceCandidate || window.webkitRTCIceCandidate || window.RTCIceCandidate;
+      var RTCIceCandidate = window.RTCIceCandidate || window.webkitRTCIceCandidate || window.RTCIceCandidate;
       var candidate = new RTCIceCandidate({sdpMLineIndex:message.candidate.sdpMLineIndex, sdpMid:message.candidate.sdpMid, candidate:message.candidate.candidate});
       pconns[pcID].addIceCandidate(candidate, addCandidateSuccess, errorCallback);
 
@@ -489,7 +477,7 @@
 
   function createPeerConnection(pcID) {
     console.log("Creating peer connection");
-    RTCPeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+    RTCPeerConnection = window.webkitRTCPeerConnection || window.RTCPeerConnection;
     var pc_config = {"iceServers":[]};
     try {
       pconns[pcID] = new RTCPeerConnection(pc_config);
