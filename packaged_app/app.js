@@ -11,7 +11,7 @@ var videoFlowing = false;
 var isPresentor = false;
 var shareVideoActive = false;
 var remoteVideoActive = false;
-var removeVP8Codec = false;
+var useH264 = false;
 var joinReceived = false;
 var pending_request_id = null;
 var pconns = {};
@@ -107,7 +107,7 @@ document.querySelector('#closeConfiguration').addEventListener('click', function
   var popup = document.getElementById("popup");
   overlay.style.display = "none";
   popup.style.display = "none"; 
-  removeVP8Codec = document.getElementById('h264').checked;
+  useH264 = document.getElementById('h264').checked;
 
   if (document.getElementById('small').checked) {
     document.getElementById("remoteVideo").className = "video-small";
@@ -152,21 +152,22 @@ function closeMeetingNotification() {
   popup.style.display = "none"; 
 }
 
-function removeVP8(sdp) {
-  console.log("SDP before manipulation: " + sdp);
-  updated_sdp = sdp.replace("m=video 9 UDP/TLS/RTP/SAVPF 100 101 116 117 120 96\r\n", "m=video 9 UDP/TLS/RTP/SAVPF 120 100 101 116 117 96\r\n");
-  //updated_sdp = sdp.replace("m=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n","m=video 9 UDP/TLS/RTP/SAVPF 126 120 97\r\n"); 
-  console.log("SDP after manipulation: " + updated_sdp);
-  return updated_sdp;
-}
+function useH264Codec(sdp) {
+    var isFirefox = typeof InstallTrigger !== 'undefined';
+    if (isFirefox)
+        updated_sdp = sdp.replace("m=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n","m=video 9 UDP/TLS/RTP/SAVPF 126 120 97\r\n");
+    else
+        updated_sdp = sdp.replace("m=video 9 UDP/TLS/RTP/SAVPF 100 101 107 116 117 96 97 99 98\r\n","m=video 9 UDP/TLS/RTP/SAVPF 107 101 100 116 117 96 97 99 98\r\n");
+
+    return updated_sdp;
+  }
 
 // Two peerconnections are used for Firefox compatability, this is
 // because Chrome can do share and video using one PeerConnection but FF needs two.
 function setLocalDescAndSendMessagePC0Offer(sessionDescription) {
 
-  if (removeVP8Codec) {
-    // Remove VP8 from offer
-    sessionDescription.sdp = removeVP8(sessionDescription.sdp);
+  if (useH264) {
+     sessionDescription.sdp = useH264Codec(sessionDescription.sdp);
   }
 
   pconns[0].setLocalDescription(sessionDescription);
@@ -181,9 +182,8 @@ function setLocalDescAndSendMessagePC0Offer(sessionDescription) {
 
 function setLocalDescAndSendMessagePC1Offer(sessionDescription) {
 
-  if (removeVP8Codec) {
-    // Remove VP8 from offer
-    sessionDescription.sdp = removeVP8(sessionDescription.sdp);
+  if (useH264) {
+     sessionDescription.sdp = useH264Codec(sessionDescription.sdp);
   }
 
   pconns[1].setLocalDescription(sessionDescription);
@@ -317,9 +317,8 @@ function onWebSocketMessage(evt) {
 
     var remoteDescription = message.peerDescription;
 
-    if (removeVP8Codec) {
-      // Remove VP8 from offer
-      remoteDescription.sdp = removeVP8(remoteDescription.sdp);
+    if (useH264) {
+      sessionDescription.sdp = useH264Codec(sessionDescription.sdp);
     }
 
     var RTCSessionDescription = window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.RTCSessionDescription;
@@ -360,7 +359,7 @@ function onWebSocketMessage(evt) {
     if (isPresentor && !joinReceived) {
       joinReceived = true;
       pending_request_id = chrome.desktopCapture.chooseDesktopMedia(
-        ["screen", "window"], onAccessApproved);
+        ["screen", "window", "tab"], onAccessApproved);
     }
   }
 }

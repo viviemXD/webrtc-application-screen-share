@@ -185,7 +185,7 @@
   var localStream = null;
   var shuttingDown = false;
   var mediaFlowing = false;
-  var removeVP8Codec = document.getElementById('h264').checked;
+  var useH264 = document.getElementById('h264').checked;
   var pconns = {};
   var mediaConstraints = {'mandatory': {
                           'OfferToReceiveAudio':true, 
@@ -193,9 +193,9 @@
 
   function handleRadioClick(myRadio) {
     if (myRadio.value == 'h264') {
-      removeVP8Codec = true;
+      useH264 = true;
     } else {
-      removeVP8Codec = false;
+      useH264 = false;
     }
   }
 
@@ -345,10 +345,13 @@
     remoteVideoActive = false;
   }
 
-  // remove VP8 to negotiate H.264 from SDP coming from OpenH264 build of Chrome
-  function removeVP8(sdp) {
-    updated_sdp = sdp.replace("m=video 9 UDP/TLS/RTP/SAVPF 100 101 116 117 120 96\r\n","m=video 9 UDP/TLS/RTP/SAVPF 120 100 101 116 117 96\r\n");
-    updated_sdp = sdp.replace("m=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n","m=video 9 UDP/TLS/RTP/SAVPF 126 120 97\r\n");
+  function useH264Codec(sdp) {
+    var isFirefox = typeof InstallTrigger !== 'undefined';
+    if (isFirefox)
+        updated_sdp = sdp.replace("m=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n","m=video 9 UDP/TLS/RTP/SAVPF 126 120 97\r\n");
+    else
+        updated_sdp = sdp.replace("m=video 9 UDP/TLS/RTP/SAVPF 100 101 107 116 117 96 97 99 98\r\n","m=video 9 UDP/TLS/RTP/SAVPF 107 101 100 116 117 96 97 99 98\r\n");
+
     return updated_sdp;
   }
 
@@ -359,6 +362,11 @@
   // Two peerconnections are used to have Firefox compatability, this is
   // because Chrome can do share and video using one PeerConnection but FF needs two.
  function setLocalDescAndSendMessagePC0Answer(sessionDescription) {
+
+   if (useH264) {
+      sessionDescription.sdp = useH264Codec(sessionDescription.sdp);
+   }
+
    pconns[0].setLocalDescription(sessionDescription, setLocalDescSuccess, errorCallback);
    console.log("Sending: SDP");
    console.log(sessionDescription);
@@ -373,13 +381,12 @@
   // send SDP over web socket
   function setLocalDescAndSendMessagePC1Answer(sessionDescription) {
 
-    if (removeVP8Codec) {
-      // Remove VP8 from offer every time, disabled for now
-      //sessionDescription.sdp = removeVP8(sessionDescription.sdp); 
-      pconns[1].setLocalDescription(sessionDescription, setLocalDescSuccess, errorCallback);
-    } else {
-      pconns[1].setLocalDescription(sessionDescription, setLocalDescSuccess, errorCallback);
+    if (useH264) {
+      sessionDescription.sdp = useH264Codec(sessionDescription.sdp); 
     }
+
+    pconns[1].setLocalDescription(sessionDescription, setLocalDescSuccess, errorCallback);
+
     console.log("Sending: SDP");
     console.log(sessionDescription);
 
@@ -391,6 +398,11 @@
   }
 
   function setLocalDescAndSendMessagePC1Offer(sessionDescription) {
+
+    if (useH264) {
+      sessionDescription.sdp = useH264Codec(sessionDescription.sdp);
+    } 
+
     pconns[1].setLocalDescription(sessionDescription , setLocalDescSuccess, errorCallback);
     console.log("Sending: SDP");
     console.log(sessionDescription);
@@ -423,10 +435,10 @@
      
       var remoteDescription = message.peerDescription; 
 
-      if (removeVP8Codec) {
+      if (useH264) {
         console.log("offer before manipulation: " + remoteDescription.sdp);
         // Remove VP8 from offer every time
-        remoteDescription.sdp = removeVP8(remoteDescription.sdp);
+        remoteDescription.sdp = useH264Codec(remoteDescription.sdp);
         console.log("offer after manipulation: " + remoteDescription.sdp);
       }      
 
