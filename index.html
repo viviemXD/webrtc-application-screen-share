@@ -158,7 +158,7 @@
         </tr>
         <tr class="table-buttons">
           <td>
-            <button class="myButton" type="button" onclick="startMedia();">Start Media</button>
+            <button class="myButton" type="button">Start Media</button>
             <button class="myButton" type="button" onclick="stopMedia();">Stop Media</button>
           </td>
           <td>
@@ -200,7 +200,7 @@
   }
 
   window.onload = function() {
-    startMedia();
+    //startMedia();
   }
 
   function startMedia() {
@@ -237,7 +237,8 @@
     }
 
     // Prefer camera resolution nearest to 1280x720.
-    var constraints = { audio: true, video: { width: 1280, height: 720 } };
+    var constraints = { audio: false, video: true
+	 };
 
     navigator.mediaDevices.getUserMedia(constraints)
       .then(function(stream) {
@@ -305,12 +306,12 @@
 
   function pause() {
     shareVideo.pause();
-    remoteVideo.pause();
+    //remoteVideo.pause();
   }
 
   function play() {
     shareVideo.play();
-    remoteVideo.play();
+    //remoteVideo.play();
   }
 
   // stop the connection on button click 
@@ -475,7 +476,7 @@
       console.log("Received publish");
 
       if (!localStream) {
-        startMedia();
+        //startMedia();
       }
       
       // automatically join
@@ -490,7 +491,42 @@
   function createPeerConnection(pcID) {
     console.log("Creating peer connection");
     RTCPeerConnection = window.webkitRTCPeerConnection || window.RTCPeerConnection;
-    var pc_config = {"iceServers":[]};
+    var pc_config = {"iceServers":[
+{url:'stun:stun01.sipphone.com'},
+{url:'stun:stun.ekiga.net'},
+{url:'stun:stun.fwdnet.net'},
+{url:'stun:stun.ideasip.com'},
+{url:'stun:stun.iptel.org'},
+{url:'stun:stun.rixtelecom.se'},
+{url:'stun:stun.schlund.de'},
+{url:'stun:stun.l.google.com:19302'},
+{url:'stun:stun1.l.google.com:19302'},
+{url:'stun:stun2.l.google.com:19302'},
+{url:'stun:stun3.l.google.com:19302'},
+{url:'stun:stun4.l.google.com:19302'},
+{url:'stun:stunserver.org'},
+{url:'stun:stun.softjoys.com'},
+{url:'stun:stun.voiparound.com'},
+{url:'stun:stun.voipbuster.com'},
+{url:'stun:stun.voipstunt.com'},
+{url:'stun:stun.voxgratia.org'},
+{url:'stun:stun.xten.com'},
+{
+	url: 'turn:numb.viagenie.ca',
+	credential: 'muazkh',
+	username: 'webrtc@live.com'
+},
+{
+	url: 'turn:192.158.29.39:3478?transport=udp',
+	credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+	username: '28224511:1379330808'
+},
+{
+	url: 'turn:192.158.29.39:3478?transport=tcp',
+	credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+	username: '28224511:1379330808'
+}
+	]};
     try {
       pconns[pcID] = new RTCPeerConnection(pc_config);
     } catch (e) {
@@ -529,13 +565,13 @@
         return;
       }
 
-      if (!remoteVideoActive) {
-        remoteVideo.src = window.URL.createObjectURL(event.stream);
-        remoteVideo.play();
-        remoteVideoActive = true;
-        if (localStream) 
-         playLocalvideo(); 
-      }
+      //if (!remoteVideoActive) {
+      //  remoteVideo.src = window.URL.createObjectURL(event.stream);
+      //  remoteVideo.play();
+      //  remoteVideoActive = true;
+      //  if (localStream) 
+      //   playLocalvideo(); 
+      //}
     }
 
     function onRemoteStreamRemoved(event) {
