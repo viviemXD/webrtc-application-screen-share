@@ -135,9 +135,9 @@
 </head>
 <body>
 
-  <h2 id="mainTitleH2">WebRTC Share, attendee console</h2>
+  <h2 id="mainTitleH2">CTI\WebRTC Demo</h2>
   <div class="share-video-section">
-    <h3 id="remoteIDH3"> Remote Share </h3>
+    <h3 id="remoteIDH3"> Screen Share </h3>
     <div class="radio">
         <input id="h264" type="radio" name="codec" onclick="handleRadioClick(this);" value="h264">
         <label for="h264">H.264</label>
@@ -145,7 +145,7 @@
         <label for="vp8">VP8</label><br><br>
     </div>
     <video class="video-win1" id="shareVideo" autoplay controls></video>
-    <div class="video-section">
+    <div class="video-section" style="visibility: hidden;">
       <table>
         <tr class="table-header">
           <td>Local Video</td>
