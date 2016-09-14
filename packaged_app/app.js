@@ -1,5 +1,5 @@
 // Replace with your server domain or ip address, or use configure button on app to set this
-var serverAddress = '192.168.1.5' ;
+var serverAddress = '52.210.48.3' ;
 var socket = null;
 var shareVideo = null;
 var localVideo = null;
@@ -17,12 +17,12 @@ var pending_request_id = null;
 var pconns = {};
 
 var mediaConstraints = {'mandatory': {
-                        'offerToReceiveAudio':true, 
+                        'offerToReceiveAudio':true,
                         'offerToReceiveVideo':true}};
 
 shareVideo = document.getElementById("shareVideo");
 
-var serverString = 'wss://' + serverAddress + ':443';                                                                                                                                                                                       
+var serverString = 'wss://' + serverAddress + ':443';
 socket = new WebSocket(serverString);
 socket.addEventListener("message", onWebSocketMessage, false);
 
@@ -102,11 +102,11 @@ document.querySelector('#configure').addEventListener('click', function(e) {
 });
 
 document.querySelector('#closeConfiguration').addEventListener('click', function(e) {
-  joinReceived = false; 
+  joinReceived = false;
   var overlay = document.getElementById("overlay");
   var popup = document.getElementById("popup");
   overlay.style.display = "none";
-  popup.style.display = "none"; 
+  popup.style.display = "none";
   useH264 = document.getElementById('h264').checked;
 
   if (document.getElementById('small').checked) {
@@ -118,7 +118,7 @@ document.querySelector('#closeConfiguration').addEventListener('click', function
   }
 
   serverAddress = document.getElementById("serverAddress").value;
-  serverString = 'wss://' + serverAddress + ':443';                                                                                                                                                                                       
+  serverString = 'wss://' + serverAddress + ':443';
   socket = new WebSocket(serverString);
   socket.addEventListener("message", onWebSocketMessage, false);
 });
@@ -149,7 +149,7 @@ function closeMeetingNotification() {
   var overlay = document.getElementById("overlayMedia");
   var popup = document.getElementById("popupMedia");
   overlay.style.display = "none";
-  popup.style.display = "none"; 
+  popup.style.display = "none";
 }
 
 function useH264Codec(sdp) {
@@ -258,9 +258,9 @@ function connect() {
   }
 }
 
-// stop the connection on button click 
+// stop the connection on button click
 function disconnect() {
-  console.log("disconnect()");    
+  console.log("disconnect()");
   socket.send(JSON.stringify({
                 "pc": 0,
                 "messageType": "bye"
@@ -279,20 +279,20 @@ function stop() {
     pconns[1] = null;
   }
   if (videoStream.active) {
-    var track = videoStream.getTracks()[0]; 
+    var track = videoStream.getTracks()[0];
     track.stop();
     videoStream = null;
     localVideo.src = "";
     remoteVideo.src = "";
   }
   if (shareStream) {
-    var track = shareStream.getTracks()[0];  
+    var track = shareStream.getTracks()[0];
     track.stop();
     shareStream = null;
   }
   if (shareVideo) {
     shareVideo.src = "";
-  } 
+  }
   shareFlowing = false;
   videoFlowing = false;
   isPresentor = false;
@@ -359,7 +359,7 @@ function onWebSocketMessage(evt) {
     if (isPresentor && !joinReceived) {
       joinReceived = true;
       pending_request_id = chrome.desktopCapture.chooseDesktopMedia(
-        ["screen", "window", "tab"], onAccessApproved);
+        ["screen", "window"], onAccessApproved);
     }
   }
 }
@@ -367,7 +367,42 @@ function onWebSocketMessage(evt) {
 function createPeerConnection(pcID) {
   console.log("Creating peer connection");
   RTCPeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
-  var pc_config = {"iceServers":[]};
+    var pc_config = {"iceServers":[
+        {url:'stun:stun01.sipphone.com'},
+        {url:'stun:stun.ekiga.net'},
+        {url:'stun:stun.fwdnet.net'},
+        {url:'stun:stun.ideasip.com'},
+        {url:'stun:stun.iptel.org'},
+        {url:'stun:stun.rixtelecom.se'},
+        {url:'stun:stun.schlund.de'},
+        {url:'stun:stun.l.google.com:19302'},
+        {url:'stun:stun1.l.google.com:19302'},
+        {url:'stun:stun2.l.google.com:19302'},
+        {url:'stun:stun3.l.google.com:19302'},
+        {url:'stun:stun4.l.google.com:19302'},
+        {url:'stun:stunserver.org'},
+        {url:'stun:stun.softjoys.com'},
+        {url:'stun:stun.voiparound.com'},
+        {url:'stun:stun.voipbuster.com'},
+        {url:'stun:stun.voipstunt.com'},
+        {url:'stun:stun.voxgratia.org'},
+        {url:'stun:stun.xten.com'},
+        {
+	    url: 'turn:numb.viagenie.ca',
+	    credential: 'muazkh',
+	    username: 'webrtc@live.com'
+        },
+        {
+	    url: 'turn:192.158.29.39:3478?transport=udp',
+	    credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+	    username: '28224511:1379330808'
+        },
+        {
+	    url: 'turn:192.158.29.39:3478?transport=tcp',
+	    credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+	    username: '28224511:1379330808'
+        }
+    ]};
   try {
     pconns[pcID] = new RTCPeerConnection(pc_config);
   } catch (e) {
@@ -384,7 +419,7 @@ function createPeerConnection(pcID) {
                     "pc": pcID,
                     "messageType": "iceCandidate",
                     "candidate": evt.candidate
-                  }));   
+                  }));
     } else {
       console.log("End of candidates.");
     }
@@ -406,7 +441,7 @@ function createPeerConnection(pcID) {
       shareVideo.play();
       shareVideoActive = true;
       return;
-    }   
+    }
 
     if (!remoteVideoActive) {
       remoteVideo.src = window.URL.createObjectURL(event.stream);
