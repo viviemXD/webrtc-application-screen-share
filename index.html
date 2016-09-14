@@ -1,8 +1,7 @@
-
 <!DOCTYPE html>
 <html>
 <head>
-  <title>WebRTC Screen \ Application Capture Demo</title>  
+  <title>WebRTC Screen \ Application Capture Demo</title>
 
   <style>
     .mainTitleH2 {
@@ -22,49 +21,49 @@
       text-align: center;
     }
     .video-win1 {
-      width: 768px; 
-      height: 576px; 
+      width: 768px;
+      height: 576px;
       border: 1px solid black;
       margin-top: -7px;
     }
     .video-win2 {
-      width: 381px; 
-      height: 288px; 
+      width: 381px;
+      height: 288px;
       border: 1px solid black;
     }
     .radio label:before {
-      border-radius: 8px;  
+      border-radius: 8px;
     }
-    label {  
-      display: inline-block;  
-      cursor: pointer;  
-      position: relative;  
-      padding-left: 25px;  
-      margin-right: 15px;  
-      font-size: 13px;  
+    label {
+      display: inline-block;
+      cursor: pointer;
+      position: relative;
+      padding-left: 25px;
+      margin-right: 15px;
+      font-size: 13px;
     }
-    input[type=radio] {  
-      display: none;  
+    input[type=radio] {
+      display: none;
     }
-    label:before {  
-      content: "";  
-      display: inline-block;  
-      width: 16px;  
-      height: 16px;  
-      margin-right: 10px;  
-      position: absolute;  
-       left: 0;  
-      bottombottom: 1px;  
-      background-color: #aaa;  
-      box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, .3), 0px 1px 0px 0px rgba(255, 255, 255, .8);  
+    label:before {
+      content: "";
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      margin-right: 10px;
+      position: absolute;
+       left: 0;
+      bottombottom: 1px;
+      background-color: #aaa;
+      box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, .3), 0px 1px 0px 0px rgba(255, 255, 255, .8);
     }
-    input[type=radio]:checked + label:before {  
-      content: "\2022";  
-      color: #f3f3f3;  
-      font-size: 30px;  
-      text-align: center;  
-      line-height: 18px;  
-    } 
+    input[type=radio]:checked + label:before {
+      content: "\2022";
+      color: #f3f3f3;
+      font-size: 30px;
+      text-align: center;
+      line-height: 18px;
+    }
     .share-video-section {
       width: 770px;
       display: block;
@@ -118,7 +117,7 @@
       top: 1px;
     }
     .table-header {
-      text-align: center; 
+      text-align: center;
       vertical-align: middle;
       cursor: pointer;
       color: #667667;
@@ -139,12 +138,12 @@
   <h2 id="mainTitleH2">WebRTC Share, attendee console</h2>
   <div class="share-video-section">
     <h3 id="remoteIDH3"> Remote Share </h3>
-    <div class="radio">  
-        <input id="h264" type="radio" name="codec" onclick="handleRadioClick(this);" value="h264">  
-        <label for="h264">H.264</label>  
+    <div class="radio">
+        <input id="h264" type="radio" name="codec" onclick="handleRadioClick(this);" value="h264">
+        <label for="h264">H.264</label>
         <input id="vp8" type="radio" name="codec" onclick="handleRadioClick(this);" value="vp8" checked="checked">
         <label for="vp8">VP8</label><br><br>
-    </div>  
+    </div>
     <video class="video-win1" id="shareVideo" autoplay controls></video>
     <div class="video-section">
       <table>
@@ -167,7 +166,7 @@
             <button class="myButton" type="button" onclick="disconnect();">Disconnect</button>
           </td>
         </tr>
-      </table> 
+      </table>
   </div>
 
   <script>
@@ -175,7 +174,7 @@
   // detect server from URL
   var hostArray = window.location.host.split(':');
   var serverLoc = 'wss://' + hostArray[0] + ':443/'
-  var socket = new WebSocket(serverLoc); 
+  var socket = new WebSocket(serverLoc);
 
   var shareVideo = document.getElementById('shareVideo');
   var shareVideoActive = false;
@@ -188,7 +187,7 @@
   var useH264 = document.getElementById('h264').checked;
   var pconns = {};
   var mediaConstraints = {'mandatory': {
-                          'OfferToReceiveAudio':true, 
+                          'OfferToReceiveAudio':true,
                           'OfferToReceiveVideo':true}};
 
   function handleRadioClick(myRadio) {
@@ -259,17 +258,6 @@
   }
 
   function stopMedia() {
-    if (localvid.mozSrcObject) {
-      localvid.mozSrcObject.stop();
-      localvid.src = null;
-    } else {
-      localvid.src = "";
-      if (localStream.active) {
-        var track = localStream.getTracks()[0]; 
-        track.stop();
-      }
-    }
-
     if (mediaFlowing && !shuttingDown) {
       if(pconns[1]) {
         pconns[1].removeStream(localStream);
@@ -287,7 +275,7 @@
       if (pconns[1]) {
         shuttingDown = false;
         pconns[1].addStream(localStream);
-        pconns[1].createOffer(setLocalDescAndSendMessagePC1Offer, errorCallback, mediaConstraints); 
+        pconns[1].createOffer(setLocalDescAndSendMessagePC1Offer, errorCallback, mediaConstraints);
       }
     }
   }
@@ -296,7 +284,7 @@
     if (localStream) {
       localvid.src = window.URL.createObjectURL(localStream);
         localvid.play();
-    }   
+    }
   }
 
   function errorCallback(error) {
@@ -314,10 +302,10 @@
     //remoteVideo.play();
   }
 
-  // stop the connection on button click 
+  // stop the connection on button click
   function disconnect() {
     shuttingDown = true;
-    console.log("disconnect()");    
+    console.log("disconnect()");
     socket.send(JSON.stringify({
                   "pc": 0,
                   "messageType": "bye"
@@ -326,7 +314,7 @@
   }
 
   function stop() {
-    console.log("stop()");    
+    console.log("stop()");
 
     stopMedia();
 
@@ -338,10 +326,10 @@
       pconns[1].close();
       pconns[1] = null;
     }
-    shareVideo.src = ""; 
-    remoteVideo.src = ""; 
+    shareVideo.src = "";
+    remoteVideo.src = "";
     localvid.src = "";
-    mediaFlowing = false;        
+    mediaFlowing = false;
     shareVideoActive = false;
     remoteVideoActive = false;
   }
@@ -383,7 +371,7 @@
   function setLocalDescAndSendMessagePC1Answer(sessionDescription) {
 
     if (useH264) {
-      sessionDescription.sdp = useH264Codec(sessionDescription.sdp); 
+      sessionDescription.sdp = useH264Codec(sessionDescription.sdp);
     }
 
     pconns[1].setLocalDescription(sessionDescription, setLocalDescSuccess, errorCallback);
@@ -402,7 +390,7 @@
 
     if (useH264) {
       sessionDescription.sdp = useH264Codec(sessionDescription.sdp);
-    } 
+    }
 
     pconns[1].setLocalDescription(sessionDescription , setLocalDescSuccess, errorCallback);
     console.log("Sending: SDP");
@@ -416,11 +404,11 @@
 
   function addCandidateSuccess() {
     console.log("addCandidate success");
-  } 
+  }
 
   socket.addEventListener("message", onWebSocketMessage, false);
 
-  // process messages from web socket 
+  // process messages from web socket
   function onWebSocketMessage(evt) {
     var message = JSON.parse(evt.data);
     var pcID = message.pc;
@@ -433,15 +421,15 @@
 
       mediaFlowing = true;
       console.log('Creating remote session description...' );
-     
-      var remoteDescription = message.peerDescription; 
+
+      var remoteDescription = message.peerDescription;
 
       if (useH264) {
         console.log("offer before manipulation: " + remoteDescription.sdp);
         // Remove VP8 from offer every time
         remoteDescription.sdp = useH264Codec(remoteDescription.sdp);
         console.log("offer after manipulation: " + remoteDescription.sdp);
-      }      
+      }
 
       var RTCSessionDescription = window.RTCSessionDescription || window.webkitRTCSessionDescription || window.RTCSessionDescription;
       pconns[pcID].setRemoteDescription(new RTCSessionDescription(remoteDescription), function() {
@@ -451,7 +439,7 @@
         else
           pconns[1].createAnswer(setLocalDescAndSendMessagePC1Answer, errorCallback);
 
-      }, errorCallback);  
+      }, errorCallback);
 
     } else if (message.messageType === "answer" && mediaFlowing) {
       var remoteDescription = message.peerDescription;
@@ -478,7 +466,7 @@
       if (!localStream) {
         //startMedia();
       }
-      
+
       // automatically join
       socket.send(JSON.stringify({
                   "pc": 0,
@@ -541,16 +529,16 @@
         socket.send(JSON.stringify({
                      "pc": pcID,
                      "messageType": "iceCandidate",
-                     "candidate": event.candidate 
-                    }));   
+                     "candidate": event.candidate
+                    }));
       } else {
         console.log("End of candidates");
       }
     };
-    
+
     if (pcID==1 && localStream)
-    { 
-      pconns[1].addStream(localStream); 
+    {
+      pconns[1].addStream(localStream);
     }
     pconns[pcID].addEventListener("addstream", onRemoteStreamAdded, false);
     pconns[pcID].addEventListener("removestream", onRemoteStreamRemoved, false);
@@ -569,8 +557,8 @@
       //  remoteVideo.src = window.URL.createObjectURL(event.stream);
       //  remoteVideo.play();
       //  remoteVideoActive = true;
-      //  if (localStream) 
-      //   playLocalvideo(); 
+      //  if (localStream)
+      //   playLocalvideo();
       //}
     }
 
@@ -583,4 +571,3 @@
   </script>
 </body>
 </html>
-
